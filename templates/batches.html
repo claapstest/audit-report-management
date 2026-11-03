@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% block title %}Audit Compliance &amp; Batches - Audit Report Stamping{% endblock %}
+{% block content %}
+<div class="page-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+  <div>
+    <h1>Audit Batches &amp; Compliance Monitor</h1>
+    <p class="muted">Connected workflow across CTO, HR, and Accountant for statutory compliance reporting.</p>
+  </div>
+  {% if role in ['accountant', 'hr', 'admin'] %}
+  <a href="/batch/new" class="btn btn-primary">&#10133; Start New Batch</a>
+  {% endif %}
+</div>
+
+<!-- CTO Action Banner if Pending Batches Exist -->
+{% if is_cto and pending_count > 0 %}
+<div class="card" style="background:rgba(245, 158, 11, 0.08); border-left:4px solid #f59e0b; padding:16px 20px; margin-bottom:20px;">
+  <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+    <div>
+      <strong style="color:#d97706; font-size:1.05rem;">&#9997; Action Required: {{ pending_count }} Batch(es) Awaiting Your Review &amp; Signature</strong>
+      <p class="muted" style="margin:2px 0 0; font-size:0.88rem;">The Accountant and HR team have verified dates and stamps. Inspect and authorize your digital signature.</p>
+    </div>
+    <a href="/batches?filter=pending" class="btn btn-primary" style="background:#10b981; border-color:#059669;">
+      View Pending Approvals &rarr;
+    </a>
+  </div>
+</div>
+{% endif %}
+
+<!-- Filter Tabs -->
+<div style="display:flex; gap:10px; margin-bottom:16px; flex-wrap:wrap;">
+  <a href="/batches" class="btn-sm {% if not filter %}btn-primary{% else %}btn-secondary{% endif %}">
+    All Batches ({{ all_batches_count }})
+  </a>
+  <a href="/batches?filter=pending" class="btn-sm {% if filter == 'pending' %}btn-primary{% else %}btn-secondary{% endif %}" style="position:relative;">
+    &#9203; Awaiting CTO Approval
+    {% if pending_count > 0 %}
+    <span style="background:var(--danger); color:#fff; border-radius:10px; padding:1px 6px; font-size:0.75rem; margin-left:4px;">{{ pending_count }}</span>
+    {% endif %}
+  </a>
+  <a href="/batches?filter=approved" class="btn-sm {% if filter == 'approved' %}btn-primary{% else %}btn-secondary{% endif %}">
+    &#10004; Approved &amp; Signed
+  </a>
+</div>
+
+<div class="card">
+  {% if batches and batches|length > 0 %}
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Batch #</th>
+        <th>Date &amp; Time</th>
+        <th>Submitted By</th>
+        <th>Audit Date</th>
+        <th>Files</th>
+        <th>Compliance Checklist</th>
+        <th>Workflow Status</th>
+        <th style="text-align:right;">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for b in batches %}
+      <tr>
+        <td><strong>#{{ b.id }}</strong></td>
+        <td>{{ b.created_at }}</td>
+        <td>
+          {% if b.submitted_by_role == 'cto' %}
+          <span class="badge user-role-cto" style="font-size:0.78rem;">&#128737; {{ b.submitted_by_fullname or b.submitted_by_username }}</span>
+          {% elif b.submitted_by_role == 'accountant' %}
+          <span class="badge user-role-accountant" style="font-size:0.78rem;">&#128202; {{ b.submitted_by_fullname or b.submitted_by_username }}</span>
+          {% else %}
+          <span class="badge user-role-hr" style="font-size:0.78rem;">&#128101; {{ b.submitted_by_fullname or b.submitted_by_username or 'HR Team' }}</span>
+          {% endif %}
+        </td>
+        <td>
+          {% if b.new_date %}
+          <span style="font-weight:600;">{{ b.new_date }}</span>
+          {% else %}<span class="muted">&mdash;</span>{% endif %}
+        </td>
+        <td>{{ b.file_count or 0 }} files</td>
+        <td style="font-size:0.85rem;">
+          <span title="Date Inserted" style="color:#059669;">&#128197; Date &check;</span> &bull;
+          <span title="Company Seal Stamped" style="color:#059669;">&#128160; Seal &check;</span> &bull;
+          {% if b.status in ['approved', 'done'] %}
+          <span title="CTO Signature Signed" style="color:#6366f1; font-weight:700;">&#9997; CTO &check;</span>
+          {% else %}
+          <span title="CTO Signature Pending" style="color:#d97706;">&#9997; CTO Pending</span>
+          {% endif %}
+        </td>
+        <td>
+          {% if b.status == 'pending_cto' %}
+          <span class="status-badge status-pending-cto">&#9203; Awaiting CTO</span>
+          {% elif b.status in ['approved', 'done'] %}
+          <span class="status-badge status-approved">&#10004; Signed by CTO</span>
+          {% elif b.status == 'changes_requested' %}
+          <span class="status-badge status-changes">&#9888; Revise</span>
+          {% elif b.status == 'processing' %}
+          <span class="status-badge status-processing">&#9889; Processing</span>
+          {% else %}
+          <span class="status-badge status-pending">{{ b.status }}</span>
+          {% endif %}
+        </td>
+        <td style="text-align:right; white-space:nowrap;">
+          {% if is_cto and b.status == 'pending_cto' %}
+          <a class="btn-sm btn-primary" href="/batch/{{ b.id }}/review" style="background:#10b981; border-color:#059669;">
+            &#9997; Review &amp; Sign
+          </a>
+          {% endif %}
+          
+          <a class="btn-sm btn-secondary" href="/batch/{{ b.id }}/monitor" title="Compliance Monitor">
+            &#128202; Monitor
+          </a>
+
+          {% if b.status in ['approved', 'done'] %}
+          <a class="btn-sm btn-secondary" href="/batch/{{ b.id }}/download-zip-pdf" title="Download all ready PDFs">
+            PDF ZIP
+          </a>
+          <a class="btn-sm btn-secondary" href="/batch/{{ b.id }}/download-zip" title="Download ZIP">
+            ZIP
+          </a>
+          {% elif b.status == 'draft' %}
+          <a class="btn-sm btn-secondary" href="/batch/{{ b.id }}/place">Continue</a>
+          {% elif b.status == 'processing' %}
+          <a class="btn-sm btn-primary" href="/batch/{{ b.id }}/processing">Live</a>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div style="text-align:center; padding:36px 0;">
+    <p class="muted">No batches match the selected filter.</p>
+    {% if role in ['accountant', 'hr', 'admin'] %}
+    <a href="/batch/new" class="btn btn-primary" style="margin-top:8px;">Upload New Audit Batch</a>
+    {% endif %}
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

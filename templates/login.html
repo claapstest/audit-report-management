@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}Login - Audit Report Stamping{% endblock %}
+{% block content %}
+<div class="card" style="max-width:460px; margin: 40px auto; padding:32px 28px;">
+  <div style="text-align:center; margin-bottom:20px;">
+    <div style="display:inline-block; background:linear-gradient(135deg, var(--brand-blue), var(--brand-red)); color:#fff; font-size:1.35rem; font-weight:700; padding:10px 18px; border-radius:12px; margin-bottom:12px;">
+      Audit Report Stamping
+    </div>
+    <p class="muted" style="margin:0; font-size:0.9rem;">Statutory Compliance &amp; Multi-Role Approval Portal</p>
+  </div>
+
+  {% if error %}
+  <div class="error-banner" style="background:rgba(227, 36, 26, 0.1); border:1px solid var(--danger); color:var(--danger); padding:8px 12px; border-radius:6px; margin-bottom:14px; font-size:0.9rem;">
+    {{ error }}
+  </div>
+  {% endif %}
+
+  <!-- Quick Role Switcher for instant login -->
+  <div style="margin-bottom:20px; padding:12px; background:rgba(0,0,0,0.03); border:1px solid var(--border); border-radius:8px;">
+    <span class="muted" style="font-size:0.8rem; font-weight:600; text-transform:uppercase; letter-spacing:0.04em;">Select Account Role to Sign In:</span>
+    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-top:8px;">
+      <button type="button" class="btn-secondary btn-sm" onclick="quickFill('cto', 'cto123')" style="padding:8px 4px; font-size:0.82rem; text-align:center;">
+        &#128737; <strong>CTO</strong><br><span class="muted" style="font-size:0.72rem;">Verify &amp; Sign</span>
+      </button>
+      <button type="button" class="btn-secondary btn-sm" onclick="quickFill('accountant', 'accountant123')" style="padding:8px 4px; font-size:0.82rem; text-align:center;">
+        &#128202; <strong>Accountant</strong><br><span class="muted" style="font-size:0.72rem;">Date &amp; Stamp</span>
+      </button>
+      <button type="button" class="btn-secondary btn-sm" onclick="quickFill('hr', 'hr123')" style="padding:8px 4px; font-size:0.82rem; text-align:center;">
+        &#128101; <strong>HR</strong><br><span class="muted" style="font-size:0.72rem;">Audit Monitor</span>
+      </button>
+    </div>
+  </div>
+
+  <form method="post" action="/login" id="loginForm">
+    <label for="username">Username</label>
+    <input type="text" id="username" name="username" value="cto" required autofocus>
+
+    <label for="password">Password</label>
+    <input type="password" id="password" name="password" value="cto123" required>
+
+    <div style="margin-top:20px">
+      <button type="submit" class="btn-primary" style="width:100%; padding:10px;">Sign In to Portal &rarr;</button>
+    </div>
+  </form>
+
+  <div style="margin-top:20px; padding-top:14px; border-top:1px solid var(--border); text-align:center;">
+    <p class="muted" style="font-size:0.82rem; margin:0;">
+      Configured Roles: <code>cto</code> (CTO Sign-off), <code>accountant</code> (Date &amp; Stamp), <code>hr</code> (Audit Monitor)
+    </p>
+  </div>
+</div>
+
+<script>
+  function quickFill(user, pass) {
+    document.getElementById('username').value = user;
+    document.getElementById('password').value = pass;
+    document.getElementById('loginForm').submit();
+  }
+</script>
+{% endblock %}

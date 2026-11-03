@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Categories & Tasks - Audit Doc Stamper{% endblock %}
+{% block content %}
+<h1>Categories &amp; Tasks</h1>
+<p class="muted">These are the recurring document categories. Set what needs to be done for each one here &mdash; when you upload a batch, you'll assign each file to one of these categories and see its task.</p>
+
+{% for c in categories %}
+<div class="card">
+  <h2>{{ c.name }}</h2>
+  <form method="post" action="/categories/{{ c.id }}/task">
+    <label for="task{{ c.id }}">Task</label>
+    <input type="text" id="task{{ c.id }}" name="task" value="{{ c.task or '' }}" placeholder="What needs to be done for this document?">
+    <div style="margin-top:10px"><button type="submit">Save</button></div>
+  </form>
+</div>
+{% endfor %}
+{% endblock %}

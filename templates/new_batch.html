@@ -1,0 +1,340 @@
+{% extends "base.html" %}
+{% block title %}Audit Report Stamping - Dashboard{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>Audit Report Stamping Portal</h1>
+    <p class="muted">Upload your monthly audit reports (PDF or Word .docx) and apply the official CTO signature and Company Seal in batch.</p>
+  </div>
+</div>
+
+<!-- Dashboard Active Assets Section -->
+<div class="card" style="margin-bottom:20px;">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:10px;">
+    <div>
+      <h2 style="margin:0;">CTO Signature &amp; Company Seal</h2>
+      <p class="muted" style="margin:2px 0 0; font-size:0.88rem;">These images are inserted into all reports. You can upload new files or drag and drop images directly onto either box.</p>
+    </div>
+    <div id="assetUploadAlert" style="display:none; padding:4px 12px; border-radius:6px; font-size:0.85rem; font-weight:600; background:rgba(16,185,129,0.15); color:#059669;"></div>
+  </div>
+
+  <div class="dashboard-assets-grid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:18px;">
+    <!-- CTO Signature Tile -->
+    <div class="dashboard-asset-card" id="sigDropCard">
+      <div class="asset-card-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+        <span style="font-size:0.82rem; font-weight:700; color:var(--muted); letter-spacing:0.04em;">CTO SIGNATURE</span>
+        <span class="status-badge {% if has_signature %}status-success{% else %}status-error{% endif %}" id="sigStatusBadge">
+          {% if has_signature %}&#10003; Loaded{% else %}&#9888; Missing{% endif %}
+        </span>
+      </div>
+      <div class="dashboard-asset-thumb" id="sigThumbBox">
+        <img id="sigDashboardImg" src="/assets/preview/signature" alt="CTO Signature">
+      </div>
+      <div style="margin-top:10px; display:flex; justify-content:space-between; align-items:center;">
+        {% if can_edit_signature %}
+        <button type="button" class="btn-secondary btn-sm" onclick="document.getElementById('sigQuickInput').click()">
+          &#128193; Upload / Replace
+        </button>
+        <input type="file" id="sigQuickInput" accept="image/png,image/jpeg" style="display:none">
+        <span class="muted" style="font-size:0.78rem;">Drag image here</span>
+        {% else %}
+        <span class="muted" style="font-size:0.8rem;">&#128274; Authorized by CTO</span>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Company Seal Tile -->
+    <div class="dashboard-asset-card" id="stampDropCard">
+      <div class="asset-card-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+        <span style="font-size:0.82rem; font-weight:700; color:var(--muted); letter-spacing:0.04em;">COMPANY SEAL / STAMP</span>
+        <span class="status-badge {% if has_stamp %}status-success{% else %}status-error{% endif %}" id="stampStatusBadge">
+          {% if has_stamp %}&#10003; Loaded{% else %}&#9888; Missing{% endif %}
+        </span>
+      </div>
+      <div class="dashboard-asset-thumb" id="stampThumbBox">
+        <img id="stampDashboardImg" src="/assets/preview/stamp" alt="Company Seal">
+      </div>
+      <div style="margin-top:10px; display:flex; justify-content:space-between; align-items:center;">
+        {% if can_edit_stamp %}
+        <button type="button" class="btn-secondary btn-sm" onclick="document.getElementById('stampQuickInput').click()">
+          &#128193; Upload / Replace
+        </button>
+        <input type="file" id="stampQuickInput" accept="image/png,image/jpeg" style="display:none">
+        <span class="muted" style="font-size:0.78rem;">Drag image here</span>
+        {% else %}
+        <span class="muted" style="font-size:0.8rem;">&#128274; Managed by Accountant/HR</span>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Document Upload Card -->
+<div class="card">
+  <h2>Batch Document Upload</h2>
+  <p class="muted">Upload your monthly audit reports (PDF, Word .docx, or Excel .xlsx/.xls). You can drag &amp; drop 120 to 140+ files at once or add them in multiple passes.</p>
+
+  <div id="dropzone" class="dropzone" style="margin-top:14px;">
+    <div class="dropzone-icon">&#128194;</div>
+    <p style="font-size:1.15rem; margin:6px 0;"><strong>Drag &amp; drop your audit files here</strong>, or <span class="browse-link">click to browse</span></p>
+    <p class="muted" style="margin:0">Accepts <code>.pdf</code>, <code>.docx</code>, <code>.xlsx</code>, and <code>.xls</code> &bull; Multiple files and folders supported</p>
+  </div>
+
+  <div class="upload-controls" id="uploadStats" style="display:none; margin-top:16px;">
+    <div class="stats-bar" style="display:flex; align-items:center; gap:10px;">
+      <span class="badge badge-primary" id="pendingFileBadge">0 files</span>
+      <span class="muted" id="pendingFileSize">0 MB</span>
+      <button type="button" class="btn-secondary btn-sm" id="clearAllBtn" style="margin-left:auto">Clear All</button>
+    </div>
+
+    <div style="margin-top:12px;">
+      <input type="text" id="fileSearchInput" placeholder="Filter files by name..." style="width:100%; max-width:320px;">
+    </div>
+
+    <ul class="file-list" id="pendingFileList" style="margin-top:12px; max-height:280px; overflow-y:auto;"></ul>
+  </div>
+
+  <form method="post" action="/batch/new" enctype="multipart/form-data" id="uploadForm">
+    <input type="file" id="files" name="files" accept=".pdf,.docx,.xlsx,.xls" multiple style="display:none">
+    <div style="margin-top:20px; display:flex; align-items:center; gap:12px;">
+      <button type="submit" id="submitBtn" class="btn-primary btn-large" disabled>Continue to Placement &rarr;</button>
+      <span id="uploadSpinner" style="display:none;" class="spinner-text">&#9203; Uploading files to server, please wait...</span>
+    </div>
+  </form>
+</div>
+
+<script>
+  (function () {
+    // Quick asset upload AJAX
+    const alertBox = document.getElementById("assetUploadAlert");
+
+    function showAlert(msg) {
+      alertBox.textContent = msg;
+      alertBox.style.display = "block";
+      setTimeout(() => { alertBox.style.display = "none"; }, 3500);
+    }
+
+    function uploadAssetAjax(kind, file) {
+      if (!file) return;
+      const formData = new FormData();
+      formData.append("kind", kind);
+      formData.append("file", file);
+      formData.append("make_transparent", "true");
+
+      showAlert(`Uploading ${kind}...`);
+
+      fetch("/api/assets/upload", {
+        method: "POST",
+        body: formData,
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          const imgId = kind === "signature" ? "sigDashboardImg" : "stampDashboardImg";
+          const badgeId = kind === "signature" ? "sigStatusBadge" : "stampStatusBadge";
+          const imgEl = document.getElementById(imgId);
+          const badgeEl = document.getElementById(badgeId);
+
+          if (imgEl) {
+            imgEl.src = data.preview_url;
+          }
+          if (badgeEl) {
+            badgeEl.className = "status-badge status-success";
+            badgeEl.innerHTML = "&#10003; Loaded";
+          }
+          showAlert(`✓ ${kind === "signature" ? "CTO Signature" : "Company Seal"} updated successfully!`);
+        } else {
+          showAlert(`Failed: ${data.detail || "Upload error"}`);
+        }
+      })
+      .catch(err => {
+        showAlert(`Upload error: ${err.message}`);
+      });
+    }
+
+    // Input file changes (guarded for role permissions)
+    const sigInput = document.getElementById("sigQuickInput");
+    const stampInput = document.getElementById("stampQuickInput");
+
+    if (sigInput) {
+      sigInput.addEventListener("change", function () {
+        if (sigInput.files[0]) uploadAssetAjax("signature", sigInput.files[0]);
+      });
+    }
+    if (stampInput) {
+      stampInput.addEventListener("change", function () {
+        if (stampInput.files[0]) uploadAssetAjax("stamp", stampInput.files[0]);
+      });
+    }
+
+    // Drag and drop for asset cards
+    function setupAssetDrop(cardId, kind, isAllowed) {
+      const card = document.getElementById(cardId);
+      if (!card || !isAllowed) return;
+      card.addEventListener("dragover", e => { e.preventDefault(); card.style.borderColor = "var(--accent)"; });
+      card.addEventListener("dragleave", () => { card.style.borderColor = ""; });
+      card.addEventListener("drop", e => {
+        e.preventDefault();
+        card.style.borderColor = "";
+        if (e.dataTransfer.files[0]) {
+          uploadAssetAjax(kind, e.dataTransfer.files[0]);
+        }
+      });
+    }
+
+    setupAssetDrop("sigDropCard", "signature", {% if can_edit_signature %}true{% else %}false{% endif %});
+    setupAssetDrop("stampDropCard", "stamp", {% if can_edit_stamp %}true{% else %}false{% endif %});
+
+    // Document batch upload handling
+    const dropzone = document.getElementById('dropzone');
+    const input = document.getElementById('files');
+    const listEl = document.getElementById('pendingFileList');
+    const statsEl = document.getElementById('uploadStats');
+    const badgeEl = document.getElementById('pendingFileBadge');
+    const sizeEl = document.getElementById('pendingFileSize');
+    const clearAllBtn = document.getElementById('clearAllBtn');
+    const searchInput = document.getElementById('fileSearchInput');
+    const submitBtn = document.getElementById('submitBtn');
+    const uploadForm = document.getElementById('uploadForm');
+    const uploadSpinner = document.getElementById('uploadSpinner');
+
+    const allowedExt = ['.pdf', '.docx', '.xlsx', '.xls'];
+    let pending = [];
+
+    function keyOf(file) {
+      return file.name + '|' + file.size + '|' + file.lastModified;
+    }
+
+    function formatBytes(bytes) {
+      if (bytes === 0) return '0 Bytes';
+      const k = 1024, dm = 1;
+      const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+    }
+
+    function isAllowed(file) {
+      const name = file.name.toLowerCase();
+      return allowedExt.some(ext => name.endsWith(ext));
+    }
+
+    function render() {
+      listEl.innerHTML = '';
+      const query = (searchInput.value || '').toLowerCase().trim();
+      let totalBytes = 0;
+
+      const filtered = pending.filter(entry => {
+        totalBytes += entry.file.size;
+        return !query || entry.file.name.toLowerCase().includes(query);
+      });
+
+      if (pending.length === 0) {
+        statsEl.style.display = 'none';
+        submitBtn.disabled = true;
+        return;
+      }
+
+      statsEl.style.display = 'block';
+      badgeEl.textContent = `${pending.length} file${pending.length === 1 ? '' : 's'} selected`;
+      sizeEl.textContent = `(${formatBytes(totalBytes)})`;
+      submitBtn.disabled = false;
+
+      filtered.forEach(entry => {
+        const originalIdx = pending.indexOf(entry);
+        const li = document.createElement('li');
+        li.className = 'file-list-item';
+
+        const left = document.createElement('div');
+        left.style.display = 'flex';
+        left.style.alignItems = 'center';
+        left.style.gap = '8px';
+
+        const ext = entry.file.name.split('.').pop().toLowerCase();
+        const tag = document.createElement('span');
+        let tagClass = 'tag-docx';
+        if (ext === 'pdf') tagClass = 'tag-pdf';
+        else if (ext === 'xlsx' || ext === 'xls') tagClass = 'tag-xlsx';
+        tag.className = 'file-tag ' + tagClass;
+        tag.textContent = ext.toUpperCase();
+
+        const nameSpan = document.createElement('span');
+        nameSpan.textContent = entry.file.name;
+        nameSpan.className = 'file-name-text';
+
+        const sizeSpan = document.createElement('span');
+        sizeSpan.textContent = formatBytes(entry.file.size);
+        sizeSpan.className = 'muted';
+        sizeSpan.style.fontSize = '0.85rem';
+
+        left.appendChild(tag);
+        left.appendChild(nameSpan);
+        left.appendChild(sizeSpan);
+
+        const removeBtn = document.createElement('button');
+        removeBtn.type = 'button';
+        removeBtn.className = 'btn-danger-outline btn-sm';
+        removeBtn.textContent = 'Remove';
+        removeBtn.addEventListener('click', () => {
+          pending.splice(originalIdx, 1);
+          sync();
+        });
+
+        li.appendChild(left);
+        li.appendChild(removeBtn);
+        listEl.appendChild(li);
+      });
+    }
+
+    function sync() {
+      const dt = new DataTransfer();
+      pending.forEach(entry => { dt.items.add(entry.file); });
+      input.files = dt.files;
+      render();
+    }
+
+    function addFiles(fileList) {
+      const seen = {};
+      pending.forEach(entry => { seen[entry.key] = true; });
+      Array.prototype.forEach.call(fileList, file => {
+        if (!isAllowed(file)) return;
+        const key = keyOf(file);
+        if (seen[key]) return;
+        seen[key] = true;
+        pending.push({ file, key });
+      });
+      sync();
+    }
+
+    dropzone.addEventListener('click', () => input.click());
+    dropzone.addEventListener('dragover', e => {
+      e.preventDefault();
+      dropzone.classList.add('dropzone-active');
+    });
+    dropzone.addEventListener('dragleave', () => {
+      dropzone.classList.remove('dropzone-active');
+    });
+    dropzone.addEventListener('drop', e => {
+      e.preventDefault();
+      dropzone.classList.remove('dropzone-active');
+      addFiles(e.dataTransfer.files);
+    });
+    input.addEventListener('change', () => {
+      addFiles(input.files);
+    });
+
+    clearAllBtn.addEventListener('click', () => {
+      pending = [];
+      sync();
+    });
+
+    searchInput.addEventListener('input', render);
+
+    uploadForm.addEventListener('submit', () => {
+      submitBtn.disabled = true;
+      uploadSpinner.style.display = 'inline-block';
+    });
+
+    render();
+  })();
+</script>
+{% endblock %}

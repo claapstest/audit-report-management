@@ -1,0 +1,173 @@
+(function () {
+  const wrap = document.getElementById("placementWrap");
+  if (!wrap) return; // no PDF in this batch
+
+  const batchId = wrap.dataset.batchId;
+  const pageImg = document.getElementById("pageImg");
+  const pageSelect = document.getElementById("targetPageSelect");
+  const fileSelect = document.getElementById("previewFileSelect");
+  const targetPageInput = document.getElementById("targetPageInput");
+  const testDetectBtn = document.getElementById("testDetectBtn");
+  const detectStatusMsg = document.getElementById("detectStatusMsg");
+  const highlightBox = document.getElementById("keywordHighlightBox");
+  const highlightLabel = document.getElementById("keywordHighlightLabel");
+  const keywordsInput = document.getElementById("keywordsInput");
+
+  let currentPageCount = parseInt(wrap.dataset.pageCount, 10) || 1;
+
+  function updatePreviewImage() {
+    const fileId = fileSelect ? fileSelect.value : "";
+    const val = pageSelect.value;
+    targetPageInput.value = val;
+    const pageNum = val === "last" ? currentPageCount : parseInt(val, 10);
+    pageImg.src = `/batch/${batchId}/preview-image?page=${pageNum}&file_id=${fileId}&t=${Date.now()}`;
+    if (highlightBox) highlightBox.style.display = "none";
+    if (detectStatusMsg) detectStatusMsg.style.display = "none";
+  }
+
+  function updatePageSelectOptions(count) {
+    if (!pageSelect) return;
+    const currentVal = pageSelect.value;
+    pageSelect.innerHTML = "";
+    const lastOpt = document.createElement("option");
+    lastOpt.value = "last";
+    lastOpt.textContent = `Last page (Page ${count})`;
+    pageSelect.appendChild(lastOpt);
+
+    for (let p = 1; p <= count; p++) {
+      const opt = document.createElement("option");
+      opt.value = p.toString();
+      opt.textContent = `Page ${p}`;
+      if (currentVal === p.toString()) opt.selected = true;
+      pageSelect.appendChild(opt);
+    }
+    if (currentVal === "last") lastOpt.selected = true;
+  }
+
+  function handleFileSwitch() {
+    const fileId = fileSelect ? fileSelect.value : "";
+    if (!fileId) return;
+
+    fetch(`/batch/${batchId}/file-pages?file_id=${fileId}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.page_count) {
+          currentPageCount = data.page_count;
+          wrap.dataset.pageCount = currentPageCount;
+          updatePageSelectOptions(currentPageCount);
+        }
+        updatePreviewImage();
+      })
+      .catch(() => {
+        updatePreviewImage();
+      });
+  }
+
+  if (pageSelect) {
+    pageSelect.addEventListener("change", updatePreviewImage);
+  }
+
+  if (fileSelect) {
+    fileSelect.addEventListener("change", handleFileSwitch);
+  }
+
+  // Keyword auto-detect test
+  if (testDetectBtn) {
+    testDetectBtn.addEventListener("click", function () {
+      const fileId = fileSelect ? fileSelect.value : "";
+      const val = pageSelect.value;
+      const pageNum = val === "last" ? currentPageCount : parseInt(val, 10);
+      const kws = keywordsInput ? encodeURIComponent(keywordsInput.value) : "";
+
+      detectStatusMsg.style.display = "block";
+      detectStatusMsg.innerHTML = '<span class="muted">&#8987; Scanning page text for keywords...</span>';
+
+      fetch(`/batch/${batchId}/detect-keyword?page=${pageNum}&file_id=${fileId}&keywords=${kws}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.matches && data.matches.length > 0) {
+            const m = data.matches[0];
+            detectStatusMsg.innerHTML = `<span style="color:#10b981;">&#10004; Match found: <strong>"${m.text}"</strong> (keyword: ${m.matched_keyword})</span>`;
+            if (highlightBox && highlightLabel) {
+              highlightBox.style.display = "block";
+              highlightBox.style.left = `${m.x0_pct}%`;
+              highlightBox.style.top = `${m.y0_pct}%`;
+              highlightBox.style.width = `${Math.max(m.x1_pct - m.x0_pct, 10)}%`;
+              highlightBox.style.height = `${Math.max(m.y1_pct - m.y0_pct, 3)}%`;
+              highlightLabel.textContent = `Matched: ${m.matched_keyword}`;
+            }
+          } else {
+            if (highlightBox) highlightBox.style.display = "none";
+            detectStatusMsg.innerHTML = '<span class="muted">&#8505; No keyword match on this specific page. Engine will scan other pages or use fallback position.</span>';
+          }
+        })
+        .catch(err => {
+          detectStatusMsg.innerHTML = `<span class="error">&#9888; Detection error: ${err.message}</span>`;
+        });
+    });
+  }
+
+  function makeDraggable(overlayId, xInputId, yInputId, wInputId, sliderId, valSpanId) {
+    const el = document.getElementById(overlayId);
+    if (!el) return;
+    const xInput = document.getElementById(xInputId);
+    const yInput = document.getElementById(yInputId);
+    const wInput = document.getElementById(wInputId);
+    const slider = document.getElementById(sliderId);
+    const valSpan = document.getElementById(valSpanId);
+
+    function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
+
+    function updateHiddenFromStyle() {
+      const wrapRect = wrap.getBoundingClientRect();
+      const elRect = el.getBoundingClientRect();
+      const xPct = ((elRect.left - wrapRect.left) / wrapRect.width) * 100;
+      const yPct = ((elRect.top - wrapRect.top) / wrapRect.height) * 100;
+      if (xInput) xInput.value = clamp(xPct, 0, 100).toFixed(2);
+      if (yInput) yInput.value = clamp(yPct, 0, 100).toFixed(2);
+    }
+
+    let dragging = false;
+    let offsetX = 0;
+    let offsetY = 0;
+
+    el.addEventListener("mousedown", (e) => {
+      dragging = true;
+      const elRect = el.getBoundingClientRect();
+      offsetX = e.clientX - elRect.left;
+      offsetY = e.clientY - elRect.top;
+      e.preventDefault();
+    });
+
+    document.addEventListener("mousemove", (e) => {
+      if (!dragging) return;
+      const wrapRect = wrap.getBoundingClientRect();
+      let left = e.clientX - wrapRect.left - offsetX;
+      let top = e.clientY - wrapRect.top - offsetY;
+      left = clamp(left, 0, wrapRect.width - el.offsetWidth);
+      top = clamp(top, 0, wrapRect.height - el.offsetHeight);
+      el.style.left = `${(left / wrapRect.width) * 100}%`;
+      el.style.top = `${(top / wrapRect.height) * 100}%`;
+      updateHiddenFromStyle();
+    });
+
+    document.addEventListener("mouseup", () => {
+      dragging = false;
+    });
+
+    if (slider) {
+      slider.addEventListener("input", () => {
+        el.style.width = `${slider.value}%`;
+        if (wInput) wInput.value = slider.value;
+        if (valSpan) valSpan.textContent = `${slider.value}%`;
+        updateHiddenFromStyle();
+      });
+    }
+
+    updateHiddenFromStyle();
+    if (wInput) wInput.value = parseFloat(el.style.width) || 20;
+  }
+
+  makeDraggable("sigOverlay", "sigXInput", "sigYInput", "sigWInput", "sigWidthSlider", "sigWidthVal");
+  makeDraggable("stampOverlay", "stampXInput", "stampYInput", "stampWInput", "stampWidthSlider", "stampWidthVal");
+})();

@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% block title %}Results - Batch #{{ batch_id }} - Audit Report Stamping{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div>
+    <h1>Batch #{{ batch_id }} Completed</h1>
+    <p class="muted">All audit documents have been signed and stamped with the CTO signature and Company Seal.</p>
+  </div>
+</div>
+
+<!-- Summary Stat Cards -->
+<div class="stats-grid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:16px; margin-bottom:20px;">
+  <div class="stat-card">
+    <div class="stat-number">{{ files|length }}</div>
+    <div class="stat-label">Total Files</div>
+  </div>
+  <div class="stat-card stat-success">
+    <div class="stat-number">{{ success_count }}</div>
+    <div class="stat-label">Successfully Stamped</div>
+  </div>
+  <div class="stat-card stat-info">
+    <div class="stat-number">{{ detected_count }}</div>
+    <div class="stat-label">Keyword Auto-Detected</div>
+  </div>
+  <div class="stat-card stat-neutral">
+    <div class="stat-number">{{ fallback_count }}</div>
+    <div class="stat-label">Visual Fallback Used</div>
+  </div>
+</div>
+
+<!-- Download Actions Card -->
+<div class="card" style="padding:24px;">
+  <h2>Download Stamped Files</h2>
+  <p class="muted">You can download the entire batch as a single ZIP archive, or download files individually from the table below.</p>
+  
+  <div style="display:flex; gap:14px; flex-wrap:wrap; margin-top:16px;">
+    <a class="btn btn-primary btn-large" href="/batch/{{ batch_id }}/download-zip">&#128230; Download All as ZIP (Originals)</a>
+    <a class="btn btn-secondary btn-large" href="/batch/{{ batch_id }}/download-zip-pdf">&#128196; Download All as PDF (ZIP)</a>
+    <a class="btn btn-secondary" href="/batch/new">&#10133; Start a New Batch</a>
+  </div>
+</div>
+
+<!-- Itemized Results Table -->
+<div class="card">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:10px;">
+    <h2>Itemized Document Status</h2>
+    <input type="text" id="resultFilter" placeholder="Filter files..." style="max-width:240px; padding:6px 10px;">
+  </div>
+
+  <table class="data-table" id="resultsTable">
+    <thead>
+      <tr>
+        <th>File Name</th>
+        <th>Category</th>
+        <th>Status</th>
+        <th>Details &amp; Placement</th>
+        <th style="text-align:right;">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for f in files %}
+      <tr class="result-row">
+        <td>
+          <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+            <strong>{{ f.original_name }}</strong>
+            {% if f.has_existing_stamp %}
+            <span class="badge" style="background:#0284c7; color:#fff; font-size:0.75rem; font-weight:600; padding:2px 8px; border-radius:12px;">
+              &#128278; Doc has Stamp in it
+            </span>
+            {% endif %}
+          </div>
+        </td>
+        <td>
+          {% if f.category_name %}
+          <span class="badge badge-neutral">{{ f.category_name }}</span>
+          {% else %}<span class="muted">&mdash;</span>{% endif %}
+        </td>
+        <td>
+          {% if f.status == 'success' %}
+          <span class="status-badge status-success">Success</span>
+          {% elif f.status == 'error' %}
+          <span class="status-badge status-error">Error</span>
+          {% else %}
+          <span class="status-badge status-pending">{{ f.status }}</span>
+          {% endif %}
+        </td>
+        <td style="font-size:0.88rem;">
+          {% if f.detected_text and not f.is_fallback %}
+          <span style="color:#059669; font-weight:500;">&#10004; {{ f.message }}</span>
+          {% elif f.is_fallback %}
+          <span style="color:#2563eb;">&#9432; {{ f.message }}</span>
+          {% else %}
+          <span class="muted">{{ f.message or 'Completed' }}</span>
+          {% endif %}
+        </td>
+        <td style="text-align:right; white-space:nowrap;">
+          {% if f.status == 'success' %}
+          <a class="btn-sm btn-secondary" href="/batch/{{ batch_id }}/download/{{ f.id }}">Download</a>
+          {% if not f.original_name.lower().endswith('.pdf') %}
+          <a class="btn-sm btn-secondary" href="/batch/{{ batch_id }}/download-pdf/{{ f.id }}" title="Download as PDF">PDF</a>
+          {% endif %}
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<script>
+  document.getElementById("resultFilter").addEventListener("input", function (e) {
+    const q = e.target.value.toLowerCase().trim();
+    document.querySelectorAll(".result-row").forEach(function (row) {
+      const txt = row.textContent.toLowerCase();
+      row.style.display = txt.includes(q) ? "" : "none";
+    });
+  });
+</script>
+{% endblock %}

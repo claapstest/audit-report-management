@@ -1,0 +1,312 @@
+{% extends "base.html" %}
+{% block title %}CTO Review &amp; Approval - Batch #{{ batch_id }}{% endblock %}
+{% block content %}
+<div class="page-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+  <div>
+    <span class="badge user-role-cto" style="padding:4px 10px; border-radius:12px; font-size:0.8rem; text-transform:uppercase;">
+      &#128737; CTO Verification Console
+    </span>
+    <h1 style="margin-top:6px;">Batch #{{ batch_id }} &bull; CTO Verification &amp; Approval</h1>
+    <p class="muted">Review statutory compliance reports, verify Company Seal and Date, and authorize your CTO Digital Signature.</p>
+  </div>
+  <a href="/batches" class="btn btn-secondary">&larr; Back to Batches</a>
+</div>
+
+<!-- Workflow Status Banner -->
+<div class="approval-card-banner">
+  <div>
+    <div style="display:flex; align-items:center; gap:10px; margin-bottom:6px;">
+      <span style="font-size:1.15rem; font-weight:700;">Workflow Status:</span>
+      {% if batch.status == 'pending_cto' %}
+      <span class="status-badge status-pending-cto" style="font-size:0.95rem; padding:4px 12px;">
+        &#9203; Awaiting CTO Review &amp; Signature
+      </span>
+      {% elif batch.status in ['approved', 'done'] %}
+      <span class="status-badge status-approved" style="font-size:0.95rem; padding:4px 12px;">
+        &#10004; Approved &amp; Signed by CTO
+      </span>
+      {% elif batch.status == 'changes_requested' %}
+      <span class="status-badge status-changes" style="font-size:0.95rem; padding:4px 12px;">
+        &#9888; Changes Requested
+      </span>
+      {% else %}
+      <span class="status-badge status-pending" style="font-size:0.95rem; padding:4px 12px;">{{ batch.status }}</span>
+      {% endif %}
+    </div>
+    <p class="muted" style="margin:0; font-size:0.9rem;">
+      Submitted by <strong>{{ batch.submitted_by_fullname or batch.submitted_by_username or 'Accountant' }}</strong>
+      {% if batch.submitted_at %} on {{ batch.submitted_at }}{% endif %} &bull; Audit Date: <strong>{{ batch.new_date or 'Standard' }}</strong>
+      {% if batch.approved_at %}&bull; Approved by <strong>{{ batch.approved_by_fullname or batch.approved_by_username }}</strong> on {{ batch.approved_at }}{% endif %}
+    </p>
+  </div>
+
+  {% if is_cto and batch.status in ['pending_cto', 'changes_requested', 'draft'] %}
+  <div style="display:flex; gap:10px; align-items:center;">
+    <button type="button" class="btn-secondary" onclick="openRejectModal()" style="color:var(--danger); border-color:var(--danger);">
+      &#10060; Request Changes
+    </button>
+    <form method="post" action="/batch/{{ batch_id }}/approve" style="margin:0;" onsubmit="return confirm('Authorize applying your official CTO Digital Signature across all {{ total_files }} documents in this batch?');">
+      <button type="submit" class="btn-primary btn-large" style="background:#10b981; border-color:#059669; padding:12px 24px; font-size:1.05rem;">
+        &#9997; Approve Batch &amp; Apply Digital Signature &rarr;
+      </button>
+    </form>
+  </div>
+  {% elif batch.status in ['approved', 'done'] %}
+  <div style="display:flex; gap:10px;">
+    <a href="/batch/{{ batch_id }}/download-zip-pdf" class="btn btn-primary">&#128196; Download All as PDF (ZIP)</a>
+    <a href="/batch/{{ batch_id }}/monitor" class="btn btn-secondary">&#128202; View Compliance Monitor</a>
+  </div>
+  {% endif %}
+</div>
+
+{% if batch.status == 'changes_requested' and batch.rejection_reason %}
+<div class="card" style="background:rgba(239, 68, 68, 0.08); border-left:4px solid var(--danger); padding:16px; margin-bottom:20px;">
+  <strong style="color:var(--danger);">&#9888; CTO Notes / Revision Instructions:</strong>
+  <p style="margin:6px 0 0; font-size:0.95rem;">{{ batch.rejection_reason }}</p>
+</div>
+{% endif %}
+
+<!-- Compliance Checklist Progress -->
+<div class="stats-grid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:16px; margin-bottom:20px;">
+  <div class="stat-card">
+    <div class="stat-number">{{ total_files }}</div>
+    <div class="stat-label">Total Audit Reports</div>
+  </div>
+  <div class="stat-card stat-success">
+    <div class="stat-number">{{ date_count }} / {{ total_files }}</div>
+    <div class="stat-label">Date Verified &amp; Applied</div>
+  </div>
+  <div class="stat-card stat-success">
+    <div class="stat-number">{{ stamped_count }} / {{ total_files }}</div>
+    <div class="stat-label">Company Seal Stamped</div>
+  </div>
+  <div class="stat-card {% if signed_count == total_files %}stat-success{% else %}stat-info{% endif %}">
+    <div class="stat-number">
+      {% if signed_count == total_files %}{{ signed_count }} / {{ total_files }} &check;
+      {% else %}Awaiting Approval
+      {% endif %}
+    </div>
+    <div class="stat-label">CTO Digital Signature</div>
+  </div>
+</div>
+
+<!-- Interactive Document Review Split-Pane -->
+<div class="card" style="padding:0; overflow:hidden;">
+  <div style="padding:14px 20px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
+    <div>
+      <h2 style="margin:0; font-size:1.15rem;">Document Verification Queue</h2>
+      <p class="muted" style="margin:2px 0 0; font-size:0.85rem;">Select any document below to inspect the Company Seal, Place, and Date.</p>
+    </div>
+    <input type="text" id="docFilterInput" placeholder="Filter files..." style="max-width:240px; padding:6px 12px; font-size:0.88rem;">
+  </div>
+
+  <div class="doc-review-container">
+    <!-- Left: List of files -->
+    <div class="doc-review-list" id="docReviewList">
+      {% for f in files %}
+      <div class="doc-review-item {% if loop.first %}active{% endif %}" data-file-id="{{ f.id }}" data-file-name="{{ f.original_name }}" onclick="selectReviewFile({{ f.id }}, '{{ f.original_name }}', this)">
+        <div style="font-weight:600; font-size:0.9rem; word-break:break-all;">
+          {{ f.original_name }}
+        </div>
+        <div style="display:flex; gap:6px; align-items:center; margin-top:6px; flex-wrap:wrap;">
+          {% if f.category_name %}
+          <span class="badge badge-neutral" style="font-size:0.75rem;">{{ f.category_name }}</span>
+          {% endif %}
+          {% if f.has_existing_stamp %}
+          <span class="badge" style="background:#0284c7; color:#fff; font-size:0.75rem; font-weight:600;">&#128278; Doc has Stamp in it</span>
+          {% elif f.has_stamp or f.status in ['stamped', 'success'] %}
+          <span style="font-size:0.75rem; color:#059669;">&#10004; Stamped</span>
+          {% endif %}
+          {% if f.has_signature %}
+          <span style="font-size:0.75rem; color:#6366f1; font-weight:600;">&#10004; Signed</span>
+          {% else %}
+          <span style="font-size:0.75rem; color:#d97706;">&#9203; Unsigned</span>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- Right: Live Inspection Viewer -->
+    <div class="doc-review-preview">
+      <div class="doc-review-preview-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+        <span id="previewDocTitle" style="font-weight:600; font-size:0.92rem; max-width:300px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+          {% if files and files|length > 0 %}{{ files[0].original_name }}{% endif %}
+        </span>
+        
+        <div style="display:flex; gap:8px; align-items:center;">
+          <!-- Page Navigation -->
+          <div style="display:flex; align-items:center; gap:4px; background:rgba(0,0,0,0.2); padding:2px 8px; border-radius:6px;">
+            <button type="button" class="btn btn-secondary btn-sm" id="prevPageBtn" onclick="changeReviewPage(-1)" style="padding:2px 8px; font-size:0.8rem;" title="Previous page">&larr;</button>
+            <span id="reviewPageIndicator" style="font-size:0.82rem; min-width:70px; text-align:center;">Page 1</span>
+            <button type="button" class="btn btn-secondary btn-sm" id="nextPageBtn" onclick="changeReviewPage(1)" style="padding:2px 8px; font-size:0.8rem;" title="Next page">&rarr;</button>
+            <button type="button" class="btn btn-secondary btn-sm" id="sigPageBtn" onclick="jumpToSignPage()" style="padding:2px 8px; font-size:0.78rem;" title="Jump to Signatory page">Sign Page</button>
+          </div>
+
+          <a id="openFullPdfBtn" href="/batch/{{ batch_id }}/view-pdf/{% if files and files|length > 0 %}{{ files[0].id }}{% else %}0{% endif %}" target="_blank" class="btn btn-secondary btn-sm" style="color:#fff; border-color:#555;">
+            &#8599; Open PDF Tab
+          </a>
+        </div>
+      </div>
+
+      <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; background:#1e1f29; overflow:auto; padding:16px; position:relative; min-height:480px;">
+        <!-- Loading Spinner -->
+        <div id="previewLoading" style="display:none; position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); background:rgba(0,0,0,0.7); color:#fff; padding:12px 20px; border-radius:8px; font-size:0.9rem; z-index:10;">
+          &#9203; Rendering Document Preview...
+        </div>
+
+        <!-- Error Container -->
+        <div id="previewError" style="display:none; text-align:center; padding:24px; color:#fca5a5; background:rgba(239, 68, 68, 0.1); border-radius:8px; border:1px solid rgba(239, 68, 68, 0.25);">
+          <div style="font-size:1.5rem; margin-bottom:8px;">&#9888;</div>
+          <div style="font-weight:600; margin-bottom:6px;">Preview generation in progress or file format converting</div>
+          <p class="muted" style="margin:0 0 12px; font-size:0.85rem;">You can open the document directly in a separate browser tab.</p>
+          <a id="errorPdfLink" href="#" target="_blank" class="btn btn-primary btn-sm">&#8599; Open PDF in New Tab</a>
+        </div>
+
+        <img id="reviewDocImg"
+             src="/batch/{{ batch_id }}/preview-image?file_id={% if files and files|length > 0 %}{{ files[0].id }}{% else %}0{% endif %}"
+             alt="Document Preview"
+             onload="onPreviewLoaded()"
+             onerror="onPreviewError()"
+             style="max-width:100%; max-height:680px; box-shadow:0 8px 30px rgba(0,0,0,0.5); border-radius:4px; background:#fff;">
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Bottom Action Bar (Sticky) -->
+{% if is_cto and batch.status in ['pending_cto', 'changes_requested', 'draft'] %}
+<div class="card" style="margin-top:20px; padding:20px; text-align:center; background:linear-gradient(135deg, rgba(16,185,129,0.06), rgba(37,99,235,0.06)); border:1px solid rgba(16,185,129,0.3);">
+  <h3 style="margin-top:0;">Ready to Authorize Compliance Batch?</h3>
+  <p class="muted" style="max-width:600px; margin:0 auto 16px;">
+    By clicking approve, the CTO official digital signature will be embedded onto all {{ total_files }} statutory audit documents, lock all dates and stamps, and compile finalized submission PDFs.
+  </p>
+  <div style="display:flex; justify-content:center; gap:14px; flex-wrap:wrap;">
+    <button type="button" class="btn-secondary" onclick="openRejectModal()" style="color:var(--danger); border-color:var(--danger);">
+      &#10060; Request Revisions
+    </button>
+    <form method="post" action="/batch/{{ batch_id }}/approve" style="margin:0;" onsubmit="return confirm('Authorize applying your official CTO Digital Signature across all {{ total_files }} documents in this batch?');">
+      <button type="submit" class="btn-primary btn-large" style="background:#10b981; border-color:#059669; padding:12px 28px; font-size:1.1rem;">
+        &#9997; Approve Entire Batch &amp; Apply CTO Signature &rarr;
+      </button>
+    </form>
+  </div>
+</div>
+{% endif %}
+
+<!-- Rejection Modal -->
+<div id="rejectModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:999; align-items:center; justify-content:center; padding:20px;">
+  <div class="card" style="max-width:480px; width:100%; padding:24px;">
+    <h2 style="margin-top:0; color:var(--danger);">&#10060; Request Batch Revisions</h2>
+    <p class="muted" style="font-size:0.9rem;">
+      Provide feedback to the Accountant &amp; HR team. The batch will be returned for revision.
+    </p>
+    <form method="post" action="/batch/{{ batch_id }}/reject">
+      <label for="rejectionReason"><strong>Reason / Required Changes:</strong></label>
+      <textarea id="rejectionReason" name="rejection_reason" rows="4" style="width:100%; padding:8px; border:1px solid var(--border); border-radius:6px;" required placeholder="e.g. Please update audit date to 31st March 2026, or check Form XIX wage register."></textarea>
+      
+      <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:16px;">
+        <button type="button" class="btn-secondary" onclick="closeRejectModal()">Cancel</button>
+        <button type="submit" class="btn-primary" style="background:var(--danger); border-color:var(--danger);">Send Feedback to Team</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  var currentFileId = {% if files and files|length > 0 %}{{ files[0].id }}{% else %}0{% endif %};
+  var currentPage = 1;
+  var totalPages = 1;
+  var targetPage = 1;
+
+  function loadFileInfo(fileId) {
+    fetch('/batch/{{ batch_id }}/file-info/' + fileId)
+      .then(function(res) { return res.json(); })
+      .then(function(info) {
+        totalPages = info.total_pages || 1;
+        targetPage = info.target_page || totalPages;
+        currentPage = targetPage;
+        updatePreviewImg();
+      })
+      .catch(function() {
+        updatePreviewImg();
+      });
+  }
+
+  function updatePreviewImg() {
+    var img = document.getElementById('reviewDocImg');
+    var loader = document.getElementById('previewLoading');
+    var errBox = document.getElementById('previewError');
+    var indicator = document.getElementById('reviewPageIndicator');
+
+    loader.style.display = 'block';
+    errBox.style.display = 'none';
+    img.style.display = 'block';
+
+    indicator.textContent = 'Page ' + currentPage + ' / ' + totalPages;
+    img.src = '/batch/{{ batch_id }}/preview-image?file_id=' + currentFileId + '&page=' + currentPage + '&t=' + Date.now();
+  }
+
+  function onPreviewLoaded() {
+    document.getElementById('previewLoading').style.display = 'none';
+    document.getElementById('previewError').style.display = 'none';
+    document.getElementById('reviewDocImg').style.display = 'block';
+  }
+
+  function onPreviewError() {
+    document.getElementById('previewLoading').style.display = 'none';
+    document.getElementById('reviewDocImg').style.display = 'none';
+    var errBox = document.getElementById('previewError');
+    errBox.style.display = 'block';
+    document.getElementById('errorPdfLink').href = '/batch/{{ batch_id }}/view-pdf/' + currentFileId;
+  }
+
+  function changeReviewPage(delta) {
+    var nextPage = currentPage + delta;
+    if (nextPage >= 1 && nextPage <= totalPages) {
+      currentPage = nextPage;
+      updatePreviewImg();
+    }
+  }
+
+  function jumpToSignPage() {
+    currentPage = targetPage;
+    updatePreviewImg();
+  }
+
+  function selectReviewFile(fileId, fileName, el) {
+    document.querySelectorAll('.doc-review-item').forEach(function(item) {
+      item.classList.remove('active');
+    });
+    el.classList.add('active');
+    currentFileId = fileId;
+    document.getElementById('previewDocTitle').textContent = fileName;
+    document.getElementById('openFullPdfBtn').href = '/batch/{{ batch_id }}/view-pdf/' + fileId;
+    loadFileInfo(fileId);
+  }
+
+  function openRejectModal() {
+    var modal = document.getElementById('rejectModal');
+    modal.style.display = 'flex';
+  }
+
+  function closeRejectModal() {
+    var modal = document.getElementById('rejectModal');
+    modal.style.display = 'none';
+  }
+
+  // Filter docs in sidebar
+  document.getElementById('docFilterInput').addEventListener('input', function() {
+    var q = this.value.toLowerCase();
+    document.querySelectorAll('.doc-review-item').forEach(function(item) {
+      var name = item.dataset.fileName.toLowerCase();
+      item.style.display = name.includes(q) ? 'block' : 'none';
+    });
+  });
+
+  // Init first file info on load
+  if (currentFileId) {
+    loadFileInfo(currentFileId);
+  }
+</script>
+{% endblock %}

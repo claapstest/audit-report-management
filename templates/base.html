@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Audit Report Stamping{% endblock %}</title>
+  <link rel="icon" type="image/png" href="/static/img/favicon.png">
+  <link rel="stylesheet" href="/static/style.css?v={{ asset_version }}">
+</head>
+<body>
+  {% if username %}
+  <header class="topbar">
+    <div class="topbar-left">
+      <a href="{% if role == 'cto' %}/batches?filter=pending{% elif role == 'hr' %}/batches{% else %}/batch/new{% endif %}" class="brand-link">
+        <span class="brand-badge">Audit Report Stamping</span>
+      </a>
+      <nav class="nav-links">
+        {% if role == 'cto' %}
+        <a href="/batches?filter=pending" style="font-weight:600; color:var(--accent);">&#9997; Approvals</a>
+        <a href="/batches">&#128203; Audit Monitor</a>
+        <a href="/assets">&#128395; CTO Signature</a>
+        <a href="/categories">&#9881; Compliance Rules</a>
+        {% elif role == 'accountant' %}
+        <a href="/batch/new">&#10133; New Batch</a>
+        <a href="/batches">&#128202; Audit Monitor</a>
+        <a href="/assets">&#128160; Company Stamp</a>
+        <a href="/categories">&#9881; Compliance Rules</a>
+        {% else %}
+        <a href="/batches">&#128203; Audit Monitor</a>
+        <a href="/batch/new">&#10133; New Batch</a>
+        <a href="/assets">&#128160; Company Stamp &amp; Assets</a>
+        <a href="/categories">&#9881; Compliance Rules</a>
+        {% endif %}
+      </nav>
+    </div>
+    <div class="topbar-right" style="display:flex; align-items:center; gap:12px;">
+      <span class="user-pill {% if role == 'cto' %}user-role-cto{% elif role == 'accountant' %}user-role-accountant{% else %}user-role-hr{% endif %}" style="padding:6px 14px; border-radius:20px; font-size:0.88rem;">
+        {% if role == 'cto' %}&#128737; CTO: {{ full_name or username }}
+        {% elif role == 'accountant' %}&#128202; Accountant: {{ full_name or username }}
+        {% else %}&#128101; HR: {{ full_name or username }}{% endif %}
+      </span>
+      <form method="post" action="/logout" style="display:inline; margin:0">
+        <button type="submit" class="btn-secondary btn-sm">Log out</button>
+      </form>
+    </div>
+  </header>
+  {% endif %}
+  <main class="container">
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>
