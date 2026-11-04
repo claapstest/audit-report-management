@@ -48,7 +48,9 @@ CREATE TABLE IF NOT EXISTS batch_files (
     output_path TEXT,
     status TEXT NOT NULL DEFAULT 'pending',
     message TEXT,
-    has_existing_stamp INTEGER DEFAULT 0
+    has_existing_stamp INTEGER DEFAULT 0,
+    apply_signature INTEGER DEFAULT 1,
+    apply_stamp INTEGER DEFAULT 1
 );
 
 CREATE TABLE IF NOT EXISTS categories (
@@ -342,6 +344,10 @@ def init_db() -> None:
             conn.execute("ALTER TABLE batch_files ADD COLUMN signed_path TEXT")
         if "has_existing_stamp" not in columns:
             conn.execute("ALTER TABLE batch_files ADD COLUMN has_existing_stamp INTEGER DEFAULT 0")
+        if "apply_signature" not in columns:
+            conn.execute("ALTER TABLE batch_files ADD COLUMN apply_signature INTEGER DEFAULT 1")
+        if "apply_stamp" not in columns:
+            conn.execute("ALTER TABLE batch_files ADD COLUMN apply_stamp INTEGER DEFAULT 1")
 
         batch_columns = {row["name"] for row in conn.execute("PRAGMA table_info(batches)")}
         if "placement_mode" not in batch_columns:

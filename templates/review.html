@@ -130,9 +130,26 @@
     <!-- Right: Live Inspection Viewer -->
     <div class="doc-review-preview">
       <div class="doc-review-preview-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
-        <span id="previewDocTitle" style="font-weight:600; font-size:0.92rem; max-width:300px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
-          {% if files and files|length > 0 %}{{ files[0].original_name }}{% endif %}
-        </span>
+        <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+          <span id="previewDocTitle" style="font-weight:600; font-size:0.92rem; max-width:280px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
+            {% if files and files|length > 0 %}{{ files[0].original_name }}{% endif %}
+          </span>
+
+          <!-- Per-Doc Stamp & Signature Status / Toggle Controls -->
+          <div id="docOptionsControls" style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
+            <button type="button" class="btn btn-secondary btn-sm" id="toggleSigBtn" onclick="toggleOption('signature')" title="Click to include or exclude CTO signature for this document" style="padding:2px 8px; font-size:0.78rem;">
+              <span id="sigBtnIcon">&#10004;</span> <span id="sigBtnLabel">Signature</span> <span id="sigBtnCross" style="color:#ef4444; font-weight:bold; margin-left:2px;">&times;</span>
+            </button>
+            <div id="docStampWrapper" style="display:inline-flex; align-items:center;">
+              <button type="button" class="btn btn-secondary btn-sm" id="toggleStampBtn" onclick="toggleOption('stamp')" title="Click to include or exclude Company Seal for this document" style="padding:2px 8px; font-size:0.78rem;">
+                <span id="stampBtnIcon">&#10004;</span> <span id="stampBtnLabel">Company Seal</span> <span id="stampBtnCross" style="color:#ef4444; font-weight:bold; margin-left:2px;">&times;</span>
+              </button>
+              <span id="existingStampBadge" class="badge" style="display:none; background:#0284c7; color:#fff; font-size:0.75rem; font-weight:600; padding:3px 8px; border-radius:12px;">
+                &#128278; Original Stamp in Doc (Skipped)
+              </span>
+            </div>
+          </div>
+        </div>
         
         <div style="display:flex; gap:8px; align-items:center;">
           <!-- Page Navigation -->
@@ -218,6 +235,75 @@
   var currentPage = 1;
   var totalPages = 1;
   var targetPage = 1;
+  var currentApplySig = true;
+  var currentApplyStamp = true;
+  var currentHasExistingStamp = false;
+
+  function updateOptionButtons() {
+    var sigBtn = document.getElementById('toggleSigBtn');
+    var sigIcon = document.getElementById('sigBtnIcon');
+    var sigCross = document.getElementById('sigBtnCross');
+    var stampBtn = document.getElementById('toggleStampBtn');
+    var stampIcon = document.getElementById('stampBtnIcon');
+    var stampCross = document.getElementById('stampBtnCross');
+    var existBadge = document.getElementById('existingStampBadge');
+    if (!sigBtn || !stampBtn) return;
+
+    if (currentApplySig) {
+      sigBtn.style.borderColor = '#10b981';
+      sigBtn.style.color = '#10b981';
+      sigIcon.innerHTML = '&#10004;';
+      sigCross.style.display = 'inline';
+      sigBtn.title = 'CTO Signature included for this document. Click to exclude.';
+    } else {
+      sigBtn.style.borderColor = '#ef4444';
+      sigBtn.style.color = '#ef4444';
+      sigIcon.innerHTML = '&#10006;';
+      sigCross.style.display = 'none';
+      sigBtn.title = 'CTO Signature excluded for this document. Click to include.';
+    }
+
+    if (currentHasExistingStamp) {
+      stampBtn.style.display = 'none';
+      if (existBadge) existBadge.style.display = 'inline-block';
+    } else {
+      if (existBadge) existBadge.style.display = 'none';
+      stampBtn.style.display = 'inline-flex';
+      if (currentApplyStamp) {
+        stampBtn.style.borderColor = '#3b82f6';
+        stampBtn.style.color = '#3b82f6';
+        stampIcon.innerHTML = '&#10004;';
+        stampCross.style.display = 'inline';
+        stampBtn.title = 'Company Stamp included for this document. Click to exclude.';
+      } else {
+        stampBtn.style.borderColor = '#ef4444';
+        stampBtn.style.color = '#ef4444';
+        stampIcon.innerHTML = '&#10006;';
+        stampCross.style.display = 'none';
+        stampBtn.title = 'Company Stamp excluded for this document. Click to include.';
+      }
+    }
+  }
+
+  function toggleOption(opt) {
+    var enabled = opt === 'signature' ? !currentApplySig : !currentApplyStamp;
+    fetch('/batch/{{ batch_id }}/toggle-doc-option/' + currentFileId, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ option: opt, enabled: enabled })
+    })
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+      if (data.success) {
+        currentApplySig = data.apply_signature;
+        currentApplyStamp = data.apply_stamp;
+        updateOptionButtons();
+      } else if (data.error) {
+        alert(data.error);
+      }
+    })
+    .catch(function(err) { alert('Error updating document option: ' + err.message); });
+  }
 
   function loadFileInfo(fileId) {
     fetch('/batch/{{ batch_id }}/file-info/' + fileId)
@@ -226,6 +312,10 @@
         totalPages = info.total_pages || 1;
         targetPage = info.target_page || totalPages;
         currentPage = targetPage;
+        currentApplySig = info.apply_signature !== false;
+        currentApplyStamp = info.apply_stamp !== false;
+        currentHasExistingStamp = !!info.has_existing_stamp;
+        updateOptionButtons();
         updatePreviewImg();
       })
       .catch(function() {

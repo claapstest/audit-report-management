@@ -162,9 +162,9 @@ def create_batch(request: Request, user=Depends(require_user), files: list[Uploa
             matched = match_category(name)
             has_existing, stamp_detail = detect_existing_stamp(dest)
             conn.execute(
-                """INSERT INTO batch_files (batch_id, original_name, input_path, category_id, has_existing_stamp)
-                   VALUES (?, ?, ?, ?, ?)""",
-                (batch_id, name, str(dest), matched["id"] if matched else None, 1 if has_existing else 0),
+                """INSERT INTO batch_files (batch_id, original_name, input_path, category_id, has_existing_stamp, apply_signature, apply_stamp)
+                   VALUES (?, ?, ?, ?, ?, 1, ?)""",
+                (batch_id, name, str(dest), matched["id"] if matched else None, 1 if has_existing else 0, 0 if has_existing else 1),
             )
             saved_any = True
 
@@ -287,6 +287,8 @@ def file_info(batch_id: int, file_id: int, user=Depends(require_user)):
         "total_pages": max(1, total_pages),
         "target_page": min(max(1, target_page_num), max(1, total_pages)),
         "has_existing_stamp": bool(target["has_existing_stamp"]) if "has_existing_stamp" in target.keys() else False,
+        "apply_signature": bool(target["apply_signature"]) if "apply_signature" in target.keys() and target["apply_signature"] is not None else True,
+        "apply_stamp": bool(target["apply_stamp"]) if "apply_stamp" in target.keys() and target["apply_stamp"] is not None else False,
         "has_stamp": bool(target["has_stamp"]) if "has_stamp" in target.keys() else False,
         "has_signature": bool(target["has_signature"]) if "has_signature" in target.keys() else False,
         "status": target["status"],
@@ -420,18 +422,29 @@ def _worker_process_batch(
                 val = category[flag_name] if category is not None else None
                 return bool(val) if val is not None else fallback
 
-            use_signature = _effective("needs_signature", include_signature)
-            use_stamp = _effective("needs_stamp", include_stamp)
+            # Per-file overrides
+            file_apply_sig = bool(f["apply_signature"]) if ("apply_signature" in f.keys() and f["apply_signature"] is not None) else True
+            file_apply_stamp = bool(f["apply_stamp"]) if ("apply_stamp" in f.keys() and f["apply_stamp"] is not None) else True
+            has_existing = bool(f["has_existing_stamp"]) if "has_existing_stamp" in f.keys() else False
+
+            # ABSOLUTE RULE: If document already has an existing stamp or was excluded, NEVER add a stamp!
+            if has_existing or not file_apply_stamp or not include_stamp:
+                use_stamp = False
+                stamp_path = None
+            else:
+                use_stamp = _effective("needs_stamp", include_stamp)
+                stamp_path = raw_stamp_path if use_stamp else None
+
+            # Signature enforcement
+            if not file_apply_sig or not include_signature:
+                use_signature = False
+                sig_path = None
+            else:
+                use_signature = _effective("needs_signature", include_signature)
+                sig_path = raw_sig_path if use_signature else None
+
             use_date = _effective("needs_date", bool(new_date))
             auto_pdf = _effective("needs_pdf", auto_convert_pdf)
-
-            # Avoid duplicate stamp if file already has an existing company stamp
-            has_existing = bool(f["has_existing_stamp"]) if "has_existing_stamp" in f.keys() else False
-            if has_existing:
-                use_stamp = False
-
-            sig_path = raw_sig_path if use_signature else None
-            stamp_path = raw_stamp_path if use_stamp else None
             effective_date = new_date if use_date else ""
 
             # Check per-category target page (e.g. Form-T enforces Page 2)
@@ -592,13 +605,37 @@ async def process_batch(
 
     # Category overrides from dropdown
     category_overrides = {}
-    for f in files:
-        raw_val = form.get(f"category_{f['id']}")
-        if raw_val:
-            try:
-                category_overrides[str(f["id"])] = int(raw_val)
-            except ValueError:
-                pass
+    with get_conn() as conn:
+        for f in files:
+            f_id = f["id"]
+            raw_val = form.get(f"category_{f_id}")
+            if raw_val:
+                try:
+                    category_overrides[str(f_id)] = int(raw_val)
+                except ValueError:
+                    pass
+
+            # Per-file signature and stamp selections
+            sig_key = f"apply_sig_{f_id}"
+            stamp_key = f"apply_stamp_{f_id}"
+
+            if sig_key in form:
+                val = 1 if form.get(sig_key) in ("1", "true", "on") else 0
+            else:
+                val = 1 if eff_include_sig else (f["apply_signature"] if "apply_signature" in f.keys() and f["apply_signature"] is not None else 1)
+
+            if bool(f["has_existing_stamp"]):
+                # STRICT RULE: Existing stamps are NEVER stamped over
+                sval = 0
+            elif stamp_key in form:
+                sval = 1 if form.get(stamp_key) in ("1", "true", "on") else 0
+            else:
+                sval = 1 if eff_include_stamp else (f["apply_stamp"] if "apply_stamp" in f.keys() and f["apply_stamp"] is not None else 1)
+
+            conn.execute(
+                "UPDATE batch_files SET apply_signature = ?, apply_stamp = ? WHERE id = ?",
+                (val, sval, f_id),
+            )
 
     with get_conn() as conn:
         conn.execute(
@@ -736,6 +773,63 @@ async def approve_batch(batch_id: int, request: Request, user=Depends(require_us
     worker_thread.start()
 
     return RedirectResponse(url=f"/batch/{batch_id}/processing", status_code=303)
+
+
+@router.post("/batch/{batch_id}/toggle-doc-option/{file_id}")
+async def toggle_doc_option(
+    batch_id: int,
+    file_id: int,
+    request: Request,
+    user=Depends(require_user),
+):
+    try:
+        data = await request.json()
+    except Exception:
+        data = {}
+    option = data.get("option")  # "signature" or "stamp"
+    enabled = int(bool(data.get("enabled", False)))
+
+    with get_conn() as conn:
+        f = conn.execute(
+            "SELECT * FROM batch_files WHERE id = ? AND batch_id = ?",
+            (file_id, batch_id),
+        ).fetchone()
+        if not f:
+            raise HTTPException(status_code=404, detail="File not found")
+
+        # Absolute protection: Cannot enable stamp if document already has an existing stamp!
+        if option == "stamp" and f["has_existing_stamp"] and enabled:
+            return JSONResponse({
+                "success": False,
+                "error": "Document already contains an existing company stamp. Stamp insertion is strictly disabled.",
+                "apply_stamp": 0,
+                "has_existing_stamp": True,
+            })
+
+        if option == "signature":
+            conn.execute(
+                "UPDATE batch_files SET apply_signature = ? WHERE id = ?",
+                (enabled, file_id),
+            )
+        elif option == "stamp":
+            conn.execute(
+                "UPDATE batch_files SET apply_stamp = ? WHERE id = ?",
+                (enabled, file_id),
+            )
+
+        updated = conn.execute(
+            "SELECT apply_signature, apply_stamp, has_existing_stamp FROM batch_files WHERE id = ?",
+            (file_id,),
+        ).fetchone()
+
+    return JSONResponse({
+        "success": True,
+        "file_id": file_id,
+        "option": option,
+        "apply_signature": bool(updated["apply_signature"]),
+        "apply_stamp": bool(updated["apply_stamp"]),
+        "has_existing_stamp": bool(updated["has_existing_stamp"]),
+    })
 
 
 @router.post("/batch/{batch_id}/reject")

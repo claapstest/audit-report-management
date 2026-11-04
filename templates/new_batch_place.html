@@ -111,6 +111,21 @@
 
     <div id="detectStatusMsg" style="margin-top:8px; font-size:0.9rem; font-weight:500; display:none;"></div>
 
+    <!-- Alert if previewed file has an existing stamp -->
+    <div id="existingStampAlert" class="stamp-alert-pill" style="display:none; margin-top:8px; padding:8px 14px; background:rgba(2, 132, 199, 0.15); border:1px solid #0284c7; border-radius:6px; color:#0284c7; font-size:0.88rem; font-weight:600;">
+      &#128278; Original Company Stamp detected in this document &mdash; Stamp will NOT be inserted to prevent duplicate stamping.
+    </div>
+
+    <!-- Restore controls when an overlay is removed with (X) -->
+    <div id="restoreButtonsBar" style="display:flex; gap:10px; margin-top:10px; align-items:center;">
+      <button type="button" class="btn-secondary btn-sm" id="restoreSigBtn" style="display:none; color:#10b981; border-color:#10b981;">
+        &#43; Restore CTO Signature
+      </button>
+      <button type="button" class="btn-secondary btn-sm" id="restoreStampBtn" style="display:none; color:#3b82f6; border-color:#3b82f6;">
+        &#43; Restore Company Seal
+      </button>
+    </div>
+
     <!-- The Canvas Preview Box -->
     <div class="placement-wrap" id="placementWrap" data-page-count="{{ page_count }}" data-batch-id="{{ batch_id }}" style="margin-top:14px; position:relative;">
       <img id="pageImg" src="/batch/{{ batch_id }}/preview-image?page={{ page_count }}&file_id={{ preview_file_id }}" alt="Page preview">
@@ -123,6 +138,7 @@
       {% if has_signature %}
       <div class="overlay-item" id="sigOverlay" style="left:5%; top:80%; width:20%;">
         <span class="overlay-label">CTO SIGNATURE</span>
+        <button type="button" class="overlay-close-btn" id="closeSigBtn" title="Remove CTO Signature (X)">&times;</button>
         <img src="/assets/preview/signature" draggable="false">
       </div>
       {% endif %}
@@ -130,6 +146,7 @@
       {% if has_stamp %}
       <div class="overlay-item" id="stampOverlay" style="left:28%; top:78%; width:20%;">
         <span class="overlay-label">COMPANY SEAL</span>
+        <button type="button" class="overlay-close-btn" id="closeStampBtn" title="Remove Company Seal Stamp (X)">&times;</button>
         <img src="/assets/preview/stamp" draggable="false">
       </div>
       {% endif %}
@@ -196,7 +213,14 @@
       </summary>
       <div style="margin-top:12px;">
         <table class="data-table">
-          <thead><tr><th>File Name</th><th>Category Rule</th></tr></thead>
+          <thead>
+            <tr>
+              <th>File Name</th>
+              <th style="min-width:130px;">CTO Signature</th>
+              <th style="min-width:160px;">Company Seal</th>
+              <th>Category Rule</th>
+            </tr>
+          </thead>
           <tbody>
             {% for f in files %}
             <tr>
@@ -209,6 +233,25 @@
                   </span>
                   {% endif %}
                 </div>
+              </td>
+              <td>
+                <label class="doc-opt-toggle" title="Click to toggle or remove signature for this document">
+                  <input type="checkbox" name="apply_sig_{{ f.id }}" value="1" {% if f.apply_signature != 0 %}checked{% endif %} class="file-sig-chk" data-file-id="{{ f.id }}">
+                  <span class="doc-opt-pill sig-pill"><span class="opt-icon">&#10004;</span> Sign <span class="opt-cross" title="Remove signature">&times;</span></span>
+                </label>
+              </td>
+              <td>
+                {% if f.has_existing_stamp %}
+                <span class="badge" style="background:#0284c7; color:#fff; font-size:0.75rem; font-weight:600; padding:3px 8px; border-radius:12px;" title="Original stamp detected in file &mdash; will NOT be stamped over">
+                  &#128278; Stamp Present (Skipped)
+                </span>
+                <input type="hidden" name="apply_stamp_{{ f.id }}" value="0">
+                {% else %}
+                <label class="doc-opt-toggle" title="Click to toggle or remove company stamp for this document">
+                  <input type="checkbox" name="apply_stamp_{{ f.id }}" value="1" {% if f.apply_stamp != 0 %}checked{% endif %} class="file-stamp-chk" data-file-id="{{ f.id }}">
+                  <span class="doc-opt-pill stamp-pill"><span class="opt-icon">&#10004;</span> Stamp <span class="opt-cross" title="Remove stamp">&times;</span></span>
+                </label>
+                {% endif %}
               </td>
               <td>
                 <select name="category_{{ f.id }}" class="category-select" data-target="task-{{ f.id }}">

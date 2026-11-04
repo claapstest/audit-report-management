@@ -13,6 +13,57 @@
   const highlightLabel = document.getElementById("keywordHighlightLabel");
   const keywordsInput = document.getElementById("keywordsInput");
 
+  const sigOverlay = document.getElementById("sigOverlay");
+  const stampOverlay = document.getElementById("stampOverlay");
+  const closeSigBtn = document.getElementById("closeSigBtn");
+  const closeStampBtn = document.getElementById("closeStampBtn");
+  const restoreSigBtn = document.getElementById("restoreSigBtn");
+  const restoreStampBtn = document.getElementById("restoreStampBtn");
+  const existingStampAlert = document.getElementById("existingStampAlert");
+  const includeSigCheckbox = document.getElementById("includeSignature");
+  const includeStampCheckbox = document.getElementById("includeStamp");
+
+  let stampUserClosed = false;
+  let sigUserClosed = false;
+
+  if (closeSigBtn) {
+    closeSigBtn.addEventListener("click", function (e) {
+      e.stopPropagation();
+      sigUserClosed = true;
+      if (sigOverlay) sigOverlay.style.display = "none";
+      if (restoreSigBtn) restoreSigBtn.style.display = "inline-flex";
+      if (includeSigCheckbox) includeSigCheckbox.checked = false;
+    });
+  }
+
+  if (restoreSigBtn) {
+    restoreSigBtn.addEventListener("click", function () {
+      sigUserClosed = false;
+      if (sigOverlay) sigOverlay.style.display = "block";
+      restoreSigBtn.style.display = "none";
+      if (includeSigCheckbox) includeSigCheckbox.checked = true;
+    });
+  }
+
+  if (closeStampBtn) {
+    closeStampBtn.addEventListener("click", function (e) {
+      e.stopPropagation();
+      stampUserClosed = true;
+      if (stampOverlay) stampOverlay.style.display = "none";
+      if (restoreStampBtn) restoreStampBtn.style.display = "inline-flex";
+      if (includeStampCheckbox) includeStampCheckbox.checked = false;
+    });
+  }
+
+  if (restoreStampBtn) {
+    restoreStampBtn.addEventListener("click", function () {
+      stampUserClosed = false;
+      if (stampOverlay) stampOverlay.style.display = "block";
+      restoreStampBtn.style.display = "none";
+      if (includeStampCheckbox) includeStampCheckbox.checked = true;
+    });
+  }
+
   let currentPageCount = parseInt(wrap.dataset.pageCount, 10) || 1;
 
   function updatePreviewImage() {
@@ -48,19 +99,35 @@
     const fileId = fileSelect ? fileSelect.value : "";
     if (!fileId) return;
 
-    fetch(`/batch/${batchId}/file-pages?file_id=${fileId}`)
+    fetch(`/batch/${batchId}/file-info/${fileId}`)
       .then(res => res.json())
-      .then(data => {
-        if (data.page_count) {
-          currentPageCount = data.page_count;
+      .then(info => {
+        if (info.total_pages) {
+          currentPageCount = info.total_pages;
           wrap.dataset.pageCount = currentPageCount;
           updatePageSelectOptions(currentPageCount);
+        }
+        if (info.has_existing_stamp) {
+          if (stampOverlay) stampOverlay.style.display = "none";
+          if (restoreStampBtn) restoreStampBtn.style.display = "none";
+          if (existingStampAlert) existingStampAlert.style.display = "block";
+        } else {
+          if (existingStampAlert) existingStampAlert.style.display = "none";
+          if (!stampUserClosed && stampOverlay) {
+            stampOverlay.style.display = "block";
+            if (restoreStampBtn) restoreStampBtn.style.display = "none";
+          }
         }
         updatePreviewImage();
       })
       .catch(() => {
         updatePreviewImage();
       });
+  }
+
+  // Trigger file check on initial load
+  if (fileSelect && fileSelect.value) {
+    handleFileSwitch();
   }
 
   if (pageSelect) {

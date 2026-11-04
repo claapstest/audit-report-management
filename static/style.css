@@ -618,3 +618,99 @@ button:disabled, .btn:disabled { opacity: 0.5; cursor: not-allowed; filter: none
   justify-content: space-between;
   align-items: center;
 }
+
+/* Draggable Canvas Overlay Remove (X) Button */
+.overlay-close-btn {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 22px;
+  height: 22px;
+  background: #ef4444;
+  color: #ffffff !important;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  font-size: 14px;
+  font-weight: bold;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+  z-index: 20;
+  transition: transform 0.15s ease, background 0.15s ease;
+  padding: 0;
+}
+
+.overlay-close-btn:hover {
+  background: #dc2626;
+  transform: scale(1.15);
+}
+
+/* Document Options Interactive Pill */
+.doc-opt-toggle {
+  display: inline-flex;
+  cursor: pointer;
+  user-select: none;
+  margin: 0;
+}
+
+.doc-opt-toggle input[type="checkbox"] {
+  display: none;
+}
+
+.doc-opt-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--card-bg, #ffffff);
+  transition: all 0.15s ease;
+}
+
+.doc-opt-pill .opt-cross {
+  color: #ef4444;
+  font-weight: bold;
+  font-size: 0.95rem;
+  margin-left: 2px;
+}
+
+.doc-opt-toggle input[type="checkbox"]:checked + .sig-pill {
+  background: rgba(16, 185, 129, 0.12);
+  border-color: #10b981;
+  color: #059669;
+}
+
+.doc-opt-toggle input[type="checkbox"]:not(:checked) + .sig-pill {
+  background: rgba(239, 68, 68, 0.08);
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #ef4444;
+  text-decoration: line-through;
+}
+
+.doc-opt-toggle input[type="checkbox"]:checked + .stamp-pill {
+  background: rgba(59, 130, 246, 0.12);
+  border-color: #3b82f6;
+  color: #2563eb;
+}
+
+.doc-opt-toggle input[type="checkbox"]:not(:checked) + .stamp-pill {
+  background: rgba(239, 68, 68, 0.08);
+  border-color: rgba(239, 68, 68, 0.4);
+  color: #ef4444;
+  text-decoration: line-through;
+}
+
+.stamp-alert-pill {
+  animation: fadeIn 0.25s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}

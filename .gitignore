@@ -28,11 +28,11 @@ data/uploads/*
 data/outputs/*
 !data/uploads/.gitkeep
 !data/outputs/.gitkeep
-data/test_*
-data/*.docx
-data/*.pdf
 data/app.db*
 data/secret_key.txt
+data/*.docx
+data/*.pdf
+data/test_*
 *.temp.pdf
 *.preview.pdf
 *.preview.docx
@@ -42,3 +42,4 @@ data/secret_key.txt
 Thumbs.db
 .vscode/
 .idea/
+
