@@ -16,8 +16,8 @@
       <span class="badge user-role-cto" style="font-size:0.75rem;">Managed by CTO</span>
     </div>
     {% if has_signature %}
-      <div class="asset-preview-box">
-        <img src="/assets/preview/signature?t={{ range(1,99999) | random }}" alt="CTO Signature" style="max-height:100px; max-width:100%; object-fit:contain;">
+      <div class="asset-preview-box" style="background:#ffffff; border:1px solid var(--border-color, #cbd5e1); border-radius:8px; padding:12px; display:flex; align-items:center; justify-content:center; min-height:110px; overflow:hidden;">
+        <img src="/assets/preview/signature?t={{ range(1,99999) | random }}" alt="CTO Signature" style="max-height:90px; max-width:100%; object-fit:contain; display:block;">
       </div>
       <p class="muted" style="margin:8px 0 16px; font-size:0.88rem;">Current CTO signature loaded. Uploading a new file below will replace it.</p>
       
@@ -64,8 +64,8 @@
       <span class="badge user-role-accountant" style="font-size:0.75rem;">Managed by Accountant / HR</span>
     </div>
     {% if has_stamp %}
-      <div class="asset-preview-box">
-        <img src="/assets/preview/stamp?t={{ range(1,99999) | random }}" alt="Company Stamp" style="max-height:100px; max-width:100%; object-fit:contain;">
+      <div class="asset-preview-box" style="background:#ffffff; border:1px solid var(--border-color, #cbd5e1); border-radius:8px; padding:12px; display:flex; align-items:center; justify-content:center; min-height:110px; overflow:hidden;">
+        <img src="/assets/preview/stamp?t={{ range(1,99999) | random }}" alt="Company Stamp" style="max-height:90px; max-width:100%; object-fit:contain; display:block;">
       </div>
       <p class="muted" style="margin:8px 0 16px; font-size:0.88rem;">Current company seal loaded. Uploading a new file below will replace it.</p>
 

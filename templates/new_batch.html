@@ -27,8 +27,8 @@
           {% if has_signature %}<span class="status-dot status-dot-success"></span> Active{% else %}<span class="status-dot status-dot-danger"></span> Missing{% endif %}
         </span>
       </div>
-      <div class="dashboard-asset-thumb" id="sigThumbBox">
-        <img id="sigDashboardImg" src="/assets/preview/signature" alt="CTO Signature">
+      <div class="dashboard-asset-thumb" id="sigThumbBox" style="height:110px; display:flex; align-items:center; justify-content:center; background:#ffffff; border:1px solid var(--border-color, #cbd5e1); border-radius:8px; padding:10px; overflow:hidden;">
+        <img id="sigDashboardImg" src="/assets/preview/signature" alt="CTO Signature" style="max-height:90px; max-width:100%; object-fit:contain; display:block;">
       </div>
       <div style="margin-top:10px; display:flex; justify-content:space-between; align-items:center;">
         {% if can_edit_signature %}
@@ -55,8 +55,8 @@
           {% if has_stamp %}<span class="status-dot status-dot-success"></span> Active{% else %}<span class="status-dot status-dot-danger"></span> Missing{% endif %}
         </span>
       </div>
-      <div class="dashboard-asset-thumb" id="stampThumbBox">
-        <img id="stampDashboardImg" src="/assets/preview/stamp" alt="Company Seal">
+      <div class="dashboard-asset-thumb" id="stampThumbBox" style="height:110px; display:flex; align-items:center; justify-content:center; background:#ffffff; border:1px solid var(--border-color, #cbd5e1); border-radius:8px; padding:10px; overflow:hidden;">
+        <img id="stampDashboardImg" src="/assets/preview/stamp" alt="Company Seal" style="max-height:90px; max-width:100%; object-fit:contain; display:block;">
       </div>
       <div style="margin-top:10px; display:flex; justify-content:space-between; align-items:center;">
         {% if can_edit_stamp %}

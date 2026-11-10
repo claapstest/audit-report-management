@@ -29,7 +29,9 @@
           <button type="button" class="btn-secondary btn-sm" onclick="document.getElementById('placeSigInput').click()">Upload / Replace</button>
           <input type="file" id="placeSigInput" accept="image/png,image/jpeg" style="display:none">
         </div>
-        <div class="asset-thumb"><img id="placeSigImg" src="/assets/preview/signature?t={{ batch_id }}" alt="Signature"></div>
+        <div class="asset-thumb" style="height:90px; display:flex; align-items:center; justify-content:center; background:#ffffff; border:1px solid var(--border-color, #cbd5e1); border-radius:6px; padding:6px; overflow:hidden;">
+          <img id="placeSigImg" src="/assets/preview/signature?t={{ batch_id }}" alt="Signature" style="max-height:75px; max-width:100%; object-fit:contain; display:block;">
+        </div>
       </div>
 
       <div class="asset-card {% if has_stamp %}asset-active{% else %}asset-missing{% endif %}">
@@ -40,7 +42,9 @@
           <button type="button" class="btn-secondary btn-sm" onclick="document.getElementById('placeStampInput').click()">Upload / Replace</button>
           <input type="file" id="placeStampInput" accept="image/png,image/jpeg" style="display:none">
         </div>
-        <div class="asset-thumb"><img id="placeStampImg" src="/assets/preview/stamp?t={{ batch_id }}" alt="Stamp"></div>
+        <div class="asset-thumb" style="height:90px; display:flex; align-items:center; justify-content:center; background:#ffffff; border:1px solid var(--border-color, #cbd5e1); border-radius:6px; padding:6px; overflow:hidden;">
+          <img id="placeStampImg" src="/assets/preview/stamp?t={{ batch_id }}" alt="Stamp" style="max-height:75px; max-width:100%; object-fit:contain; display:block;">
+        </div>
       </div>
     </div>
   </div>
