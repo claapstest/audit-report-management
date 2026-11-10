@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% block title %}ARS - Audit Report Stamping{% endblock %}</title>
+  <title>{% block title %}ARS &bull; Audit Report Stamping{% endblock %}</title>
   <link rel="icon" type="image/png" href="/static/img/favicon.png">
   <link rel="stylesheet" href="/static/style.css?v={{ asset_version }}">
 </head>
@@ -20,31 +20,68 @@
       </a>
       <nav class="nav-links">
         {% if role == 'cto' %}
-        <a href="/batches?filter=pending" style="font-weight:600; color:var(--accent);">&#9997; Approvals</a>
-        <a href="/batches">&#128203; Audit Monitor</a>
-        <a href="/assets">&#128395; CTO Signature</a>
-        <a href="/categories">&#9881; Compliance Rules</a>
+        <a href="/batches?filter=pending" class="{% if request.url.path == '/batches' and request.query_params.get('filter') == 'pending' %}active{% endif %}">
+          <svg class="icon icon-sm" viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm9.707 5.707a1 1 0 00-1.414-1.414L9 12.586l-1.293-1.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+          Approvals
+        </a>
+        <a href="/batches" class="{% if request.url.path == '/batches' and not request.query_params.get('filter') %}active{% endif %}">
+          <svg class="icon icon-sm" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/></svg>
+          Audit Monitor
+        </a>
+        <a href="/assets" class="{% if request.url.path == '/assets' %}active{% endif %}">
+          <svg class="icon icon-sm" viewBox="0 0 20 20" fill="currentColor"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/></svg>
+          CTO Signature
+        </a>
+        <a href="/categories" class="{% if request.url.path == '/categories' %}active{% endif %}">
+          <svg class="icon icon-sm" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/></svg>
+          Compliance Rules
+        </a>
         {% elif role == 'accountant' %}
-        <a href="/batch/new">&#10133; New Batch</a>
-        <a href="/batches">&#128202; Audit Monitor</a>
-        <a href="/assets">&#128160; Company Stamp</a>
-        <a href="/categories">&#9881; Compliance Rules</a>
+        <a href="/batch/new" class="{% if request.url.path == '/batch/new' %}active{% endif %}">
+          <svg class="icon icon-sm" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+          New Batch
+        </a>
+        <a href="/batches" class="{% if request.url.path == '/batches' %}active{% endif %}">
+          <svg class="icon icon-sm" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/></svg>
+          Audit Monitor
+        </a>
+        <a href="/assets" class="{% if request.url.path == '/assets' %}active{% endif %}">
+          <svg class="icon icon-sm" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 2a8 8 0 100 16 8 8 0 000-16zm0 14a6 6 0 110-12 6 6 0 010 12z" clip-rule="evenodd"/></svg>
+          Company Stamp
+        </a>
+        <a href="/categories" class="{% if request.url.path == '/categories' %}active{% endif %}">
+          <svg class="icon icon-sm" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/></svg>
+          Compliance Rules
+        </a>
         {% else %}
-        <a href="/batches">&#128203; Audit Monitor</a>
-        <a href="/batch/new">&#10133; New Batch</a>
-        <a href="/assets">&#128160; Company Stamp &amp; Assets</a>
-        <a href="/categories">&#9881; Compliance Rules</a>
+        <a href="/batches" class="{% if request.url.path == '/batches' %}active{% endif %}">
+          <svg class="icon icon-sm" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/></svg>
+          Audit Monitor
+        </a>
+        <a href="/batch/new" class="{% if request.url.path == '/batch/new' %}active{% endif %}">
+          <svg class="icon icon-sm" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+          New Batch
+        </a>
+        <a href="/assets" class="{% if request.url.path == '/assets' %}active{% endif %}">
+          <svg class="icon icon-sm" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 2a8 8 0 100 16 8 8 0 000-16zm0 14a6 6 0 110-12 6 6 0 010 12z" clip-rule="evenodd"/></svg>
+          Stamps &amp; Signatures
+        </a>
+        <a href="/categories" class="{% if request.url.path == '/categories' %}active{% endif %}">
+          <svg class="icon icon-sm" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/></svg>
+          Compliance Rules
+        </a>
         {% endif %}
       </nav>
     </div>
-    <div class="topbar-right" style="display:flex; align-items:center; gap:12px;">
-      <span class="user-pill {% if role == 'cto' %}user-role-cto{% elif role == 'accountant' %}user-role-accountant{% else %}user-role-hr{% endif %}" style="padding:6px 14px; border-radius:20px; font-size:0.88rem;">
-        {% if role == 'cto' %}&#128737; CTO: {{ full_name or username }}
-        {% elif role == 'accountant' %}&#128202; Accountant: {{ full_name or username }}
-        {% else %}&#128101; HR: {{ full_name or username }}{% endif %}
+    <div class="topbar-right">
+      <span class="user-pill {% if role == 'cto' %}user-role-cto{% elif role == 'accountant' %}user-role-accountant{% else %}user-role-hr{% endif %}">
+        <span class="status-dot {% if role == 'cto' %}status-dot-info{% elif role == 'accountant' %}status-dot-success{% else %}status-dot-warning{% endif %}"></span>
+        {% if role == 'cto' %}CTO &bull; {{ full_name or username }}
+        {% elif role == 'accountant' %}Accountant &bull; {{ full_name or username }}
+        {% else %}HR &bull; {{ full_name or username }}{% endif %}
       </span>
       <form method="post" action="/logout" style="display:inline; margin:0">
-        <button type="submit" class="btn-secondary btn-sm">Log out</button>
+        <button type="submit" class="btn btn-secondary btn-sm">Sign Out</button>
       </form>
     </div>
   </header>
@@ -52,5 +89,8 @@
   <main class="container">
     {% block content %}{% endblock %}
   </main>
+  <footer class="app-footer">
+    ARS Platform &bull; Statutory Audit &amp; Compliance Verification Engine &bull; Claaps Global Enterprises Pvt. Ltd.
+  </footer>
 </body>
 </html>

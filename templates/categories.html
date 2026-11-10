@@ -1,17 +1,28 @@
 {% extends "base.html" %}
-{% block title %}Categories & Tasks - Audit Doc Stamper{% endblock %}
+{% block title %}Document Categories &amp; Task Rules - ARS{% endblock %}
 {% block content %}
-<h1>Categories &amp; Tasks</h1>
-<p class="muted">These are the recurring document categories. Set what needs to be done for each one here &mdash; when you upload a batch, you'll assign each file to one of these categories and see its task.</p>
-
-{% for c in categories %}
-<div class="card">
-  <h2>{{ c.name }}</h2>
-  <form method="post" action="/categories/{{ c.id }}/task">
-    <label for="task{{ c.id }}">Task</label>
-    <input type="text" id="task{{ c.id }}" name="task" value="{{ c.task or '' }}" placeholder="What needs to be done for this document?">
-    <div style="margin-top:10px"><button type="submit">Save</button></div>
-  </form>
+<div class="page-header">
+  <div>
+    <h1>Document Categories &amp; Task Rules</h1>
+    <p class="muted">Configure recurring audit compliance categories. When reports are uploaded in batches, rules set here dictate stamping placement and reviewer instructions.</p>
+  </div>
 </div>
-{% endfor %}
+
+<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:18px;">
+  {% for c in categories %}
+  <div class="card" style="margin:0;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+      <h2 style="margin:0; font-size:1.15rem;">{{ c.name }}</h2>
+      <span class="badge badge-neutral" style="font-size:0.75rem;">Category #{{ c.id }}</span>
+    </div>
+    <form method="post" action="/categories/{{ c.id }}/task">
+      <label for="task{{ c.id }}" style="font-size:0.88rem; font-weight:600;">Compliance Task / Rule:</label>
+      <input type="text" id="task{{ c.id }}" name="task" value="{{ c.task or '' }}" placeholder="e.g. Verify signatory line on last page..." style="margin-top:4px;">
+      <div style="margin-top:12px; display:flex; justify-content:flex-end;">
+        <button type="submit" class="btn-primary btn-sm">Save Rule</button>
+      </div>
+    </form>
+  </div>
+  {% endfor %}
+</div>
 {% endblock %}

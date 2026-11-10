@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Results - Batch #{{ batch_id }} - Audit Report Stamping{% endblock %}
+{% block title %}Results - Batch #{{ batch_id }} - ARS{% endblock %}
 {% block content %}
 <div class="page-header">
   <div>
@@ -34,9 +34,18 @@
   <p class="muted">You can download the entire batch as a single ZIP archive, or download files individually from the table below.</p>
   
   <div style="display:flex; gap:14px; flex-wrap:wrap; margin-top:16px;">
-    <a class="btn btn-primary btn-large" href="/batch/{{ batch_id }}/download-zip">&#128230; Download All as ZIP (Originals)</a>
-    <a class="btn btn-secondary btn-large" href="/batch/{{ batch_id }}/download-zip-pdf">&#128196; Download All as PDF (ZIP)</a>
-    <a class="btn btn-secondary" href="/batch/new">&#10133; Start a New Batch</a>
+    <a class="btn btn-primary btn-large" href="/batch/{{ batch_id }}/download-zip" style="display:inline-flex; align-items:center; gap:8px;">
+      <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+      Download All as ZIP (Originals)
+    </a>
+    <a class="btn btn-secondary btn-large" href="/batch/{{ batch_id }}/download-zip-pdf" style="display:inline-flex; align-items:center; gap:8px;">
+      <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Download All as PDF (ZIP)
+    </a>
+    <a class="btn btn-secondary" href="/batch/new" style="display:inline-flex; align-items:center; gap:6px;">
+      <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Start a New Batch
+    </a>
   </div>
 </div>
 
@@ -65,7 +74,7 @@
             <strong>{{ f.original_name }}</strong>
             {% if f.has_existing_stamp %}
             <span class="badge" style="background:#0284c7; color:#fff; font-size:0.75rem; font-weight:600; padding:2px 8px; border-radius:12px;">
-              &#128278; Doc has Stamp in it
+              Original Stamp Present
             </span>
             {% endif %}
           </div>
@@ -77,18 +86,18 @@
         </td>
         <td>
           {% if f.status == 'success' %}
-          <span class="status-badge status-success">Success</span>
+          <span class="status-badge status-success"><span class="status-dot status-dot-success"></span> Success</span>
           {% elif f.status == 'error' %}
-          <span class="status-badge status-error">Error</span>
+          <span class="status-badge status-error"><span class="status-dot status-dot-danger"></span> Error</span>
           {% else %}
-          <span class="status-badge status-pending">{{ f.status }}</span>
+          <span class="status-badge status-pending"><span class="status-dot status-dot-info"></span> {{ f.status }}</span>
           {% endif %}
         </td>
         <td style="font-size:0.88rem;">
           {% if f.detected_text and not f.is_fallback %}
-          <span style="color:#059669; font-weight:500;">&#10004; {{ f.message }}</span>
+          <span style="color:var(--success); font-weight:500;">{{ f.message }}</span>
           {% elif f.is_fallback %}
-          <span style="color:#2563eb;">&#9432; {{ f.message }}</span>
+          <span style="color:var(--primary);">{{ f.message }}</span>
           {% else %}
           <span class="muted">{{ f.message or 'Completed' }}</span>
           {% endif %}

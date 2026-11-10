@@ -4,7 +4,7 @@
 <div class="page-header">
   <div>
     <h1>ARS &bull; Audit Report Stamping Portal</h1>
-    <p class="muted">Upload your monthly audit reports (PDF, Word .docx, or Excel .xlsx/.xls) and apply the official CTO signature and Company Seal in batch.</p>
+    <p class="muted">Upload your monthly statutory compliance reports (PDF, Word .docx, or Excel .xlsx/.xls) and apply the official CTO signature and Company Seal in batch.</p>
   </div>
 </div>
 
@@ -13,9 +13,9 @@
   <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:10px;">
     <div>
       <h2 style="margin:0;">CTO Signature &amp; Company Seal</h2>
-      <p class="muted" style="margin:2px 0 0; font-size:0.88rem;">These images are inserted into all reports. You can upload new files or drag and drop images directly onto either box.</p>
+      <p class="muted" style="margin:2px 0 0; font-size:0.88rem;">Official assets inserted into audit documents. Drag and drop new images directly onto the preview frames below.</p>
     </div>
-    <div id="assetUploadAlert" style="display:none; padding:4px 12px; border-radius:6px; font-size:0.85rem; font-weight:600; background:rgba(16,185,129,0.15); color:#059669;"></div>
+    <div id="assetUploadAlert" style="display:none; padding:6px 14px; border-radius:6px; font-size:0.85rem; font-weight:600; background:rgba(5,150,105,0.12); color:var(--success); border:1px solid rgba(5,150,105,0.3);"></div>
   </div>
 
   <div class="dashboard-assets-grid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:18px;">
@@ -24,7 +24,7 @@
       <div class="asset-card-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
         <span style="font-size:0.82rem; font-weight:700; color:var(--muted); letter-spacing:0.04em;">CTO SIGNATURE</span>
         <span class="status-badge {% if has_signature %}status-success{% else %}status-error{% endif %}" id="sigStatusBadge">
-          {% if has_signature %}&#10003; Loaded{% else %}&#9888; Missing{% endif %}
+          {% if has_signature %}<span class="status-dot status-dot-success"></span> Active{% else %}<span class="status-dot status-dot-danger"></span> Missing{% endif %}
         </span>
       </div>
       <div class="dashboard-asset-thumb" id="sigThumbBox">
@@ -32,13 +32,17 @@
       </div>
       <div style="margin-top:10px; display:flex; justify-content:space-between; align-items:center;">
         {% if can_edit_signature %}
-        <button type="button" class="btn-secondary btn-sm" onclick="document.getElementById('sigQuickInput').click()">
-          &#128193; Upload / Replace
+        <button type="button" class="btn-secondary btn-sm" onclick="document.getElementById('sigQuickInput').click()" style="display:inline-flex; align-items:center; gap:6px;">
+          <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          Upload / Replace
         </button>
         <input type="file" id="sigQuickInput" accept="image/png,image/jpeg" style="display:none">
         <span class="muted" style="font-size:0.78rem;">Drag image here</span>
         {% else %}
-        <span class="muted" style="font-size:0.8rem;">&#128274; Authorized by CTO</span>
+        <span class="muted" style="font-size:0.8rem; display:inline-flex; align-items:center; gap:5px;">
+          <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          Authorized by CTO
+        </span>
         {% endif %}
       </div>
     </div>
@@ -48,7 +52,7 @@
       <div class="asset-card-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
         <span style="font-size:0.82rem; font-weight:700; color:var(--muted); letter-spacing:0.04em;">COMPANY SEAL / STAMP</span>
         <span class="status-badge {% if has_stamp %}status-success{% else %}status-error{% endif %}" id="stampStatusBadge">
-          {% if has_stamp %}&#10003; Loaded{% else %}&#9888; Missing{% endif %}
+          {% if has_stamp %}<span class="status-dot status-dot-success"></span> Active{% else %}<span class="status-dot status-dot-danger"></span> Missing{% endif %}
         </span>
       </div>
       <div class="dashboard-asset-thumb" id="stampThumbBox">
@@ -56,13 +60,17 @@
       </div>
       <div style="margin-top:10px; display:flex; justify-content:space-between; align-items:center;">
         {% if can_edit_stamp %}
-        <button type="button" class="btn-secondary btn-sm" onclick="document.getElementById('stampQuickInput').click()">
-          &#128193; Upload / Replace
+        <button type="button" class="btn-secondary btn-sm" onclick="document.getElementById('stampQuickInput').click()" style="display:inline-flex; align-items:center; gap:6px;">
+          <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          Upload / Replace
         </button>
         <input type="file" id="stampQuickInput" accept="image/png,image/jpeg" style="display:none">
         <span class="muted" style="font-size:0.78rem;">Drag image here</span>
         {% else %}
-        <span class="muted" style="font-size:0.8rem;">&#128274; Managed by Accountant/HR</span>
+        <span class="muted" style="font-size:0.8rem; display:inline-flex; align-items:center; gap:5px;">
+          <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          Managed by Accountant/HR
+        </span>
         {% endif %}
       </div>
     </div>
@@ -72,12 +80,20 @@
 <!-- Document Upload Card -->
 <div class="card">
   <h2>Batch Document Upload</h2>
-  <p class="muted">Upload your monthly audit reports (PDF, Word .docx, or Excel .xlsx/.xls). You can drag &amp; drop 120 to 140+ files at once or add them in multiple passes.</p>
+  <p class="muted">Upload your monthly statutory compliance documents (PDF, Word .docx, or Excel .xlsx/.xls). You can drag and drop 120 to 140+ files at once or add them in multiple passes.</p>
 
-  <div id="dropzone" class="dropzone" style="margin-top:14px;">
-    <div class="dropzone-icon">&#128194;</div>
-    <p style="font-size:1.15rem; margin:6px 0;"><strong>Drag &amp; drop your audit files here</strong>, or <span class="browse-link">click to browse</span></p>
-    <p class="muted" style="margin:0">Accepts <code>.pdf</code>, <code>.docx</code>, <code>.xlsx</code>, and <code>.xls</code> &bull; Multiple files and folders supported</p>
+  <div id="dropzone" class="dropzone" style="margin-top:14px; text-align:center; padding:36px 20px; border:2px dashed var(--border-color, #cbd5e1); border-radius:12px; background:var(--card-bg, #ffffff); cursor:pointer; transition:all 0.2s ease;">
+    <div style="margin-bottom:12px;">
+      <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="17 8 12 3 7 8"/>
+        <line x1="12" y1="3" x2="12" y2="15"/>
+      </svg>
+    </div>
+    <p style="font-size:1.15rem; margin:6px 0; font-weight:600; color:var(--text);">
+      Drag &amp; drop audit files here, or <span class="browse-link" style="color:var(--primary); text-decoration:underline;">browse files</span>
+    </p>
+    <p class="muted" style="margin:0; font-size:0.88rem;">Accepts <code>.pdf</code>, <code>.docx</code>, <code>.xlsx</code>, and <code>.xls</code> &bull; Multi-file and folder uploads supported</p>
   </div>
 
   <div class="upload-controls" id="uploadStats" style="display:none; margin-top:16px;">
@@ -96,9 +112,15 @@
 
   <form method="post" action="/batch/new" enctype="multipart/form-data" id="uploadForm">
     <input type="file" id="files" name="files" accept=".pdf,.docx,.xlsx,.xls" multiple style="display:none">
-    <div style="margin-top:20px; display:flex; align-items:center; gap:12px;">
-      <button type="submit" id="submitBtn" class="btn-primary btn-large" disabled>Continue to Placement &rarr;</button>
-      <span id="uploadSpinner" style="display:none;" class="spinner-text">&#9203; Uploading files to server, please wait...</span>
+    <div style="margin-top:20px; display:flex; align-items:center; gap:14px; flex-wrap:wrap;">
+      <button type="submit" id="submitBtn" class="btn-primary btn-large" disabled style="display:inline-flex; align-items:center; gap:8px;">
+        <span>Continue to Placement</span>
+        <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </button>
+      <span id="uploadSpinner" style="display:none; align-items:center; gap:8px;" class="spinner-text">
+        <svg class="icon spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10" stroke-dasharray="32" stroke-linecap="round"/></svg>
+        Uploading files to server, please wait...
+      </span>
     </div>
   </form>
 </div>
@@ -140,9 +162,9 @@
           }
           if (badgeEl) {
             badgeEl.className = "status-badge status-success";
-            badgeEl.innerHTML = "&#10003; Loaded";
+            badgeEl.innerHTML = '<span class="status-dot status-dot-success"></span> Active';
           }
-          showAlert(`✓ ${kind === "signature" ? "CTO Signature" : "Company Seal"} updated successfully!`);
+          showAlert(`${kind === "signature" ? "CTO Signature" : "Company Seal"} updated successfully.`);
         } else {
           showAlert(`Failed: ${data.detail || "Upload error"}`);
         }
@@ -171,7 +193,7 @@
     function setupAssetDrop(cardId, kind, isAllowed) {
       const card = document.getElementById(cardId);
       if (!card || !isAllowed) return;
-      card.addEventListener("dragover", e => { e.preventDefault(); card.style.borderColor = "var(--accent)"; });
+      card.addEventListener("dragover", e => { e.preventDefault(); card.style.borderColor = "var(--primary)"; });
       card.addEventListener("dragleave", () => { card.style.borderColor = ""; });
       card.addEventListener("drop", e => {
         e.preventDefault();
@@ -331,7 +353,7 @@
 
     uploadForm.addEventListener('submit', () => {
       submitBtn.disabled = true;
-      uploadSpinner.style.display = 'inline-block';
+      uploadSpinner.style.display = 'inline-flex';
     });
 
     render();

@@ -1,10 +1,11 @@
 {% extends "base.html" %}
-{% block title %}CTO Review &amp; Approval - Batch #{{ batch_id }}{% endblock %}
+{% block title %}CTO Review &amp; Approval - Batch #{{ batch_id }} - ARS{% endblock %}
 {% block content %}
 <div class="page-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
   <div>
-    <span class="badge user-role-cto" style="padding:4px 10px; border-radius:12px; font-size:0.8rem; text-transform:uppercase;">
-      &#128737; CTO Verification Console
+    <span class="badge user-role-cto" style="padding:4px 10px; border-radius:12px; font-size:0.8rem; text-transform:uppercase; display:inline-flex; align-items:center; gap:5px;">
+      <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      CTO Verification Console
     </span>
     <h1 style="margin-top:6px;">Batch #{{ batch_id }} &bull; CTO Verification &amp; Approval</h1>
     <p class="muted">Review statutory compliance reports, verify Company Seal and Date, and authorize your CTO Digital Signature.</p>
@@ -19,18 +20,20 @@
       <span style="font-size:1.15rem; font-weight:700;">Workflow Status:</span>
       {% if batch.status == 'pending_cto' %}
       <span class="status-badge status-pending-cto" style="font-size:0.95rem; padding:4px 12px;">
-        &#9203; Awaiting CTO Review &amp; Signature
+        <span class="status-dot status-dot-warning"></span> Awaiting CTO Review &amp; Signature
       </span>
       {% elif batch.status in ['approved', 'done'] %}
       <span class="status-badge status-approved" style="font-size:0.95rem; padding:4px 12px;">
-        &#10004; Approved &amp; Signed by CTO
+        <span class="status-dot status-dot-success"></span> Approved &amp; Signed by CTO
       </span>
       {% elif batch.status == 'changes_requested' %}
       <span class="status-badge status-changes" style="font-size:0.95rem; padding:4px 12px;">
-        &#9888; Changes Requested
+        <span class="status-dot status-dot-danger"></span> Changes Requested
       </span>
       {% else %}
-      <span class="status-badge status-pending" style="font-size:0.95rem; padding:4px 12px;">{{ batch.status }}</span>
+      <span class="status-badge status-pending" style="font-size:0.95rem; padding:4px 12px;">
+        <span class="status-dot status-dot-info"></span> {{ batch.status }}
+      </span>
       {% endif %}
     </div>
     <p class="muted" style="margin:0; font-size:0.9rem;">
@@ -41,27 +44,38 @@
   </div>
 
   {% if is_cto and batch.status in ['pending_cto', 'changes_requested', 'draft'] %}
-  <div style="display:flex; gap:10px; align-items:center;">
-    <button type="button" class="btn-secondary" onclick="openRejectModal()" style="color:var(--danger); border-color:var(--danger);">
-      &#10060; Request Changes
+  <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+    <button type="button" class="btn-secondary" onclick="openRejectModal()" style="color:var(--danger); border-color:var(--danger); display:inline-flex; align-items:center; gap:6px;">
+      <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+      Request Changes
     </button>
     <form method="post" action="/batch/{{ batch_id }}/approve" style="margin:0;" onsubmit="return confirm('Authorize applying your official CTO Digital Signature across all {{ total_files }} documents in this batch?');">
-      <button type="submit" class="btn-primary btn-large" style="background:#10b981; border-color:#059669; padding:12px 24px; font-size:1.05rem;">
-        &#9997; Approve Batch &amp; Apply Digital Signature &rarr;
+      <button type="submit" class="btn-primary btn-large" style="background:var(--success); border-color:#047857; padding:12px 24px; font-size:1.02rem; display:inline-flex; align-items:center; gap:8px;">
+        <span>Approve Batch &amp; Apply Digital Signature</span>
+        <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
       </button>
     </form>
   </div>
   {% elif batch.status in ['approved', 'done'] %}
-  <div style="display:flex; gap:10px;">
-    <a href="/batch/{{ batch_id }}/download-zip-pdf" class="btn btn-primary">&#128196; Download All as PDF (ZIP)</a>
-    <a href="/batch/{{ batch_id }}/monitor" class="btn btn-secondary">&#128202; View Compliance Monitor</a>
+  <div style="display:flex; gap:10px; flex-wrap:wrap;">
+    <a href="/batch/{{ batch_id }}/download-zip-pdf" class="btn btn-primary" style="display:inline-flex; align-items:center; gap:6px;">
+      <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Download All as PDF (ZIP)
+    </a>
+    <a href="/batch/{{ batch_id }}/monitor" class="btn btn-secondary" style="display:inline-flex; align-items:center; gap:6px;">
+      <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      View Compliance Monitor
+    </a>
   </div>
   {% endif %}
 </div>
 
 {% if batch.status == 'changes_requested' and batch.rejection_reason %}
-<div class="card" style="background:rgba(239, 68, 68, 0.08); border-left:4px solid var(--danger); padding:16px; margin-bottom:20px;">
-  <strong style="color:var(--danger);">&#9888; CTO Notes / Revision Instructions:</strong>
+<div class="card" style="background:rgba(220, 38, 38, 0.08); border-left:4px solid var(--danger); padding:16px; margin-bottom:20px;">
+  <strong style="color:var(--danger); display:inline-flex; align-items:center; gap:6px;">
+    <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    CTO Notes / Revision Instructions:
+  </strong>
   <p style="margin:6px 0 0; font-size:0.95rem;">{{ batch.rejection_reason }}</p>
 </div>
 {% endif %}
@@ -82,7 +96,7 @@
   </div>
   <div class="stat-card {% if signed_count == total_files %}stat-success{% else %}stat-info{% endif %}">
     <div class="stat-number">
-      {% if signed_count == total_files %}{{ signed_count }} / {{ total_files }} &check;
+      {% if signed_count == total_files %}{{ signed_count }} / {{ total_files }}
       {% else %}Awaiting Approval
       {% endif %}
     </div>
@@ -92,7 +106,7 @@
 
 <!-- Interactive Document Review Split-Pane -->
 <div class="card" style="padding:0; overflow:hidden;">
-  <div style="padding:14px 20px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
+  <div style="padding:14px 20px; border-bottom:1px solid var(--border-color, #e2e8f0); display:flex; justify-content:space-between; align-items:center;">
     <div>
       <h2 style="margin:0; font-size:1.15rem;">Document Verification Queue</h2>
       <p class="muted" style="margin:2px 0 0; font-size:0.85rem;">Select any document below to inspect the Company Seal, Place, and Date.</p>
@@ -113,14 +127,14 @@
           <span class="badge badge-neutral" style="font-size:0.75rem;">{{ f.category_name }}</span>
           {% endif %}
           {% if f.has_existing_stamp %}
-          <span class="badge" style="background:#0284c7; color:#fff; font-size:0.75rem; font-weight:600;">&#128278; Doc has Stamp in it</span>
+          <span class="badge" style="background:#0284c7; color:#fff; font-size:0.75rem; font-weight:600;">Original Stamp Present</span>
           {% elif f.has_stamp or f.status in ['stamped', 'success'] %}
-          <span style="font-size:0.75rem; color:#059669;">&#10004; Stamped</span>
+          <span style="font-size:0.75rem; color:var(--success); font-weight:600;">Stamped</span>
           {% endif %}
           {% if f.has_signature %}
-          <span style="font-size:0.75rem; color:#6366f1; font-weight:600;">&#10004; Signed</span>
+          <span style="font-size:0.75rem; color:var(--primary); font-weight:600;">Signed</span>
           {% else %}
-          <span style="font-size:0.75rem; color:#d97706;">&#9203; Unsigned</span>
+          <span style="font-size:0.75rem; color:var(--warning); font-weight:600;">Unsigned</span>
           {% endif %}
         </div>
       </div>
@@ -138,14 +152,14 @@
           <!-- Per-Doc Stamp & Signature Status / Toggle Controls -->
           <div id="docOptionsControls" style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
             <button type="button" class="btn btn-secondary btn-sm" id="toggleSigBtn" onclick="toggleOption('signature')" title="Click to include or exclude CTO signature for this document" style="padding:2px 8px; font-size:0.78rem;">
-              <span id="sigBtnIcon">&#10004;</span> <span id="sigBtnLabel">Signature</span> <span id="sigBtnCross" style="color:#ef4444; font-weight:bold; margin-left:2px;">&times;</span>
+              <span id="sigBtnLabel">Signature</span> <span id="sigBtnCross" style="color:var(--danger); font-weight:bold; margin-left:2px;">&times;</span>
             </button>
             <div id="docStampWrapper" style="display:inline-flex; align-items:center;">
               <button type="button" class="btn btn-secondary btn-sm" id="toggleStampBtn" onclick="toggleOption('stamp')" title="Click to include or exclude Company Seal for this document" style="padding:2px 8px; font-size:0.78rem;">
-                <span id="stampBtnIcon">&#10004;</span> <span id="stampBtnLabel">Company Seal</span> <span id="stampBtnCross" style="color:#ef4444; font-weight:bold; margin-left:2px;">&times;</span>
+                <span id="stampBtnLabel">Company Seal</span> <span id="stampBtnCross" style="color:var(--danger); font-weight:bold; margin-left:2px;">&times;</span>
               </button>
               <span id="existingStampBadge" class="badge" style="display:none; background:#0284c7; color:#fff; font-size:0.75rem; font-weight:600; padding:3px 8px; border-radius:12px;">
-                &#128278; Original Stamp in Doc (Skipped)
+                Original Stamp in Doc (Skipped)
               </span>
             </div>
           </div>
@@ -160,24 +174,30 @@
             <button type="button" class="btn btn-secondary btn-sm" id="sigPageBtn" onclick="jumpToSignPage()" style="padding:2px 8px; font-size:0.78rem;" title="Jump to Signatory page">Sign Page</button>
           </div>
 
-          <a id="openFullPdfBtn" href="/batch/{{ batch_id }}/view-pdf/{% if files and files|length > 0 %}{{ files[0].id }}{% else %}0{% endif %}" target="_blank" class="btn btn-secondary btn-sm" style="color:#fff; border-color:#555;">
-            &#8599; Open PDF Tab
+          <a id="openFullPdfBtn" href="/batch/{{ batch_id }}/view-pdf/{% if files and files|length > 0 %}{{ files[0].id }}{% else %}0{% endif %}" target="_blank" class="btn btn-secondary btn-sm" style="display:inline-flex; align-items:center; gap:4px; color:#fff; border-color:#555;">
+            <span>Open PDF</span>
+            <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
           </a>
         </div>
       </div>
 
-      <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; background:#1e1f29; overflow:auto; padding:16px; position:relative; min-height:480px;">
+      <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; background:#1e293b; overflow:auto; padding:16px; position:relative; min-height:480px;">
         <!-- Loading Spinner -->
-        <div id="previewLoading" style="display:none; position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); background:rgba(0,0,0,0.7); color:#fff; padding:12px 20px; border-radius:8px; font-size:0.9rem; z-index:10;">
-          &#9203; Rendering Document Preview...
+        <div id="previewLoading" style="display:none; position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); background:rgba(15,23,42,0.85); color:#fff; padding:12px 20px; border-radius:8px; font-size:0.9rem; z-index:10; border:1px solid rgba(255,255,255,0.1);">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <svg class="icon spin" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10" stroke-dasharray="32" stroke-linecap="round"/></svg>
+            <span>Rendering Document Preview...</span>
+          </div>
         </div>
 
         <!-- Error Container -->
-        <div id="previewError" style="display:none; text-align:center; padding:24px; color:#fca5a5; background:rgba(239, 68, 68, 0.1); border-radius:8px; border:1px solid rgba(239, 68, 68, 0.25);">
-          <div style="font-size:1.5rem; margin-bottom:8px;">&#9888;</div>
+        <div id="previewError" style="display:none; text-align:center; padding:24px; color:#fca5a5; background:rgba(220, 38, 38, 0.1); border-radius:8px; border:1px solid rgba(220, 38, 38, 0.25);">
+          <div style="margin-bottom:8px;">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--danger)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          </div>
           <div style="font-weight:600; margin-bottom:6px;">Preview generation in progress or file format converting</div>
           <p class="muted" style="margin:0 0 12px; font-size:0.85rem;">You can open the document directly in a separate browser tab.</p>
-          <a id="errorPdfLink" href="#" target="_blank" class="btn btn-primary btn-sm">&#8599; Open PDF in New Tab</a>
+          <a id="errorPdfLink" href="#" target="_blank" class="btn btn-primary btn-sm">Open PDF in New Tab</a>
         </div>
 
         <img id="reviewDocImg"
@@ -193,18 +213,20 @@
 
 <!-- Bottom Action Bar (Sticky) -->
 {% if is_cto and batch.status in ['pending_cto', 'changes_requested', 'draft'] %}
-<div class="card" style="margin-top:20px; padding:20px; text-align:center; background:linear-gradient(135deg, rgba(16,185,129,0.06), rgba(37,99,235,0.06)); border:1px solid rgba(16,185,129,0.3);">
+<div class="card" style="margin-top:20px; padding:20px; text-align:center; background:linear-gradient(135deg, rgba(5,150,105,0.06), rgba(37,99,235,0.06)); border:1px solid rgba(5,150,105,0.3);">
   <h3 style="margin-top:0;">Ready to Authorize Compliance Batch?</h3>
   <p class="muted" style="max-width:600px; margin:0 auto 16px;">
     By clicking approve, the CTO official digital signature will be embedded onto all {{ total_files }} statutory audit documents, lock all dates and stamps, and compile finalized submission PDFs.
   </p>
   <div style="display:flex; justify-content:center; gap:14px; flex-wrap:wrap;">
-    <button type="button" class="btn-secondary" onclick="openRejectModal()" style="color:var(--danger); border-color:var(--danger);">
-      &#10060; Request Revisions
+    <button type="button" class="btn-secondary" onclick="openRejectModal()" style="color:var(--danger); border-color:var(--danger); display:inline-flex; align-items:center; gap:6px;">
+      <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+      Request Revisions
     </button>
     <form method="post" action="/batch/{{ batch_id }}/approve" style="margin:0;" onsubmit="return confirm('Authorize applying your official CTO Digital Signature across all {{ total_files }} documents in this batch?');">
-      <button type="submit" class="btn-primary btn-large" style="background:#10b981; border-color:#059669; padding:12px 28px; font-size:1.1rem;">
-        &#9997; Approve Entire Batch &amp; Apply CTO Signature &rarr;
+      <button type="submit" class="btn-primary btn-large" style="background:var(--success); border-color:#047857; padding:12px 28px; font-size:1.05rem; display:inline-flex; align-items:center; gap:8px;">
+        <span>Approve Entire Batch &amp; Apply CTO Signature</span>
+        <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
       </button>
     </form>
   </div>
@@ -214,13 +236,13 @@
 <!-- Rejection Modal -->
 <div id="rejectModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:999; align-items:center; justify-content:center; padding:20px;">
   <div class="card" style="max-width:480px; width:100%; padding:24px;">
-    <h2 style="margin-top:0; color:var(--danger);">&#10060; Request Batch Revisions</h2>
+    <h2 style="margin-top:0; color:var(--danger);">Request Batch Revisions</h2>
     <p class="muted" style="font-size:0.9rem;">
       Provide feedback to the Accountant &amp; HR team. The batch will be returned for revision.
     </p>
     <form method="post" action="/batch/{{ batch_id }}/reject">
       <label for="rejectionReason"><strong>Reason / Required Changes:</strong></label>
-      <textarea id="rejectionReason" name="rejection_reason" rows="4" style="width:100%; padding:8px; border:1px solid var(--border); border-radius:6px;" required placeholder="e.g. Please update audit date to 31st March 2026, or check Form XIX wage register."></textarea>
+      <textarea id="rejectionReason" name="rejection_reason" rows="4" style="width:100%; padding:8px; border:1px solid var(--border-color, #cbd5e1); border-radius:6px;" required placeholder="e.g. Please update audit date to 31st March 2026, or check Form XIX wage register."></textarea>
       
       <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:16px;">
         <button type="button" class="btn-secondary" onclick="closeRejectModal()">Cancel</button>
@@ -241,24 +263,20 @@
 
   function updateOptionButtons() {
     var sigBtn = document.getElementById('toggleSigBtn');
-    var sigIcon = document.getElementById('sigBtnIcon');
     var sigCross = document.getElementById('sigBtnCross');
     var stampBtn = document.getElementById('toggleStampBtn');
-    var stampIcon = document.getElementById('stampBtnIcon');
     var stampCross = document.getElementById('stampBtnCross');
     var existBadge = document.getElementById('existingStampBadge');
     if (!sigBtn || !stampBtn) return;
 
     if (currentApplySig) {
-      sigBtn.style.borderColor = '#10b981';
-      sigBtn.style.color = '#10b981';
-      sigIcon.innerHTML = '&#10004;';
+      sigBtn.style.borderColor = 'var(--success)';
+      sigBtn.style.color = 'var(--success)';
       sigCross.style.display = 'inline';
       sigBtn.title = 'CTO Signature included for this document. Click to exclude.';
     } else {
-      sigBtn.style.borderColor = '#ef4444';
-      sigBtn.style.color = '#ef4444';
-      sigIcon.innerHTML = '&#10006;';
+      sigBtn.style.borderColor = 'var(--danger)';
+      sigBtn.style.color = 'var(--danger)';
       sigCross.style.display = 'none';
       sigBtn.title = 'CTO Signature excluded for this document. Click to include.';
     }
@@ -270,15 +288,13 @@
       if (existBadge) existBadge.style.display = 'none';
       stampBtn.style.display = 'inline-flex';
       if (currentApplyStamp) {
-        stampBtn.style.borderColor = '#3b82f6';
-        stampBtn.style.color = '#3b82f6';
-        stampIcon.innerHTML = '&#10004;';
+        stampBtn.style.borderColor = 'var(--primary)';
+        stampBtn.style.color = 'var(--primary)';
         stampCross.style.display = 'inline';
         stampBtn.title = 'Company Stamp included for this document. Click to exclude.';
       } else {
-        stampBtn.style.borderColor = '#ef4444';
-        stampBtn.style.color = '#ef4444';
-        stampIcon.innerHTML = '&#10006;';
+        stampBtn.style.borderColor = 'var(--danger)';
+        stampBtn.style.color = 'var(--danger)';
         stampCross.style.display = 'none';
         stampBtn.title = 'Company Stamp excluded for this document. Click to include.';
       }

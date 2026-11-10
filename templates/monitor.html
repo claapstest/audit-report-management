@@ -1,18 +1,20 @@
 {% extends "base.html" %}
-{% block title %}Audit Compliance Monitor - Batch #{{ batch_id }}{% endblock %}
+{% block title %}Audit Compliance Monitor - Batch #{{ batch_id }} - ARS{% endblock %}
 {% block content %}
 <div class="page-header" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
   <div>
-    <span class="badge user-role-hr" style="padding:4px 10px; border-radius:12px; font-size:0.8rem; text-transform:uppercase;">
-      &#128101; Statutory Compliance Monitor
+    <span class="badge user-role-hr" style="padding:4px 10px; border-radius:12px; font-size:0.8rem; text-transform:uppercase; display:inline-flex; align-items:center; gap:5px;">
+      <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Statutory Compliance Monitor
     </span>
     <h1 style="margin-top:6px;">Audit Compliance Board &bull; Batch #{{ batch_id }}</h1>
     <p class="muted">Live monitoring to ensure all {{ total_files }} audit documents are Signed, Stamped, and have the correct Date inserted.</p>
   </div>
-  <div style="display:flex; gap:10px;">
+  <div style="display:flex; gap:10px; flex-wrap:wrap;">
     {% if is_cto and batch.status == 'pending_cto' %}
-    <a href="/batch/{{ batch_id }}/review" class="btn btn-primary" style="background:#10b981; border-color:#059669;">
-      &#9997; Open CTO Review &amp; Sign
+    <a href="/batch/{{ batch_id }}/review" class="btn btn-primary" style="background:var(--success); border-color:#047857; display:inline-flex; align-items:center; gap:6px;">
+      <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      Open CTO Review &amp; Sign
     </a>
     {% endif %}
     <a href="/batches" class="btn btn-secondary">&larr; Batch History</a>
@@ -22,7 +24,9 @@
 <!-- Workflow Stage Tracker -->
 <div class="step-wizard">
   <div class="step-card step-completed">
-    <div class="step-num">&#10003;</div>
+    <div class="step-num">
+      <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
     <div>
       <div style="font-weight:700; font-size:0.92rem;">1. Batch Uploaded</div>
       <div class="muted" style="font-size:0.78rem;">By {{ batch.submitted_by_fullname or batch.submitted_by_username or 'Accountant' }}</div>
@@ -30,7 +34,11 @@
   </div>
 
   <div class="step-card {% if stamped_count > 0 %}step-completed{% else %}step-active{% endif %}">
-    <div class="step-num">{% if stamped_count > 0 %}&#10003;{% else %}2{% endif %}</div>
+    <div class="step-num">
+      {% if stamped_count > 0 %}
+      <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+      {% else %}2{% endif %}
+    </div>
     <div>
       <div style="font-weight:700; font-size:0.92rem;">2. Date &amp; Stamp Inserted</div>
       <div class="muted" style="font-size:0.78rem;">{{ stamped_count }} / {{ total_files }} Stamped</div>
@@ -38,7 +46,11 @@
   </div>
 
   <div class="step-card {% if signed_count == total_files and total_files > 0 %}step-completed{% elif batch.status == 'pending_cto' %}step-active{% else %}step-pending{% endif %}">
-    <div class="step-num">{% if signed_count == total_files and total_files > 0 %}&#10003;{% else %}3{% endif %}</div>
+    <div class="step-num">
+      {% if signed_count == total_files and total_files > 0 %}
+      <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+      {% else %}3{% endif %}
+    </div>
     <div>
       <div style="font-weight:700; font-size:0.92rem;">3. CTO Digital Signature</div>
       <div class="muted" style="font-size:0.78rem;">
@@ -60,7 +72,7 @@
   <div class="stat-card stat-success">
     <div class="stat-number">
       {{ date_count }} / {{ total_files }}
-      <span style="font-size:0.85rem; font-weight:600; color:#059669; margin-left:6px;">&#10004; Verified</span>
+      <span style="font-size:0.85rem; font-weight:600; color:var(--success); margin-left:6px;">Verified</span>
     </div>
     <div class="stat-label">Statutory Date Inserted ({{ batch.new_date or 'Auto' }})</div>
   </div>
@@ -68,7 +80,7 @@
   <div class="stat-card stat-success">
     <div class="stat-number">
       {{ stamped_count }} / {{ total_files }}
-      <span style="font-size:0.85rem; font-weight:600; color:#059669; margin-left:6px;">&#10004; Stamped</span>
+      <span style="font-size:0.85rem; font-weight:600; color:var(--success); margin-left:6px;">Stamped</span>
     </div>
     <div class="stat-label">Company Seal Affixed</div>
   </div>
@@ -77,9 +89,9 @@
     <div class="stat-number">
       {% if signed_count == total_files and total_files > 0 %}
         {{ signed_count }} / {{ total_files }}
-        <span style="font-size:0.85rem; font-weight:600; color:#059669; margin-left:6px;">&#10004; Signed</span>
+        <span style="font-size:0.85rem; font-weight:600; color:var(--success); margin-left:6px;">Signed</span>
       {% else %}
-        <span style="color:#d97706; font-size:1.4rem;">&#9203; Pending CTO</span>
+        <span style="color:var(--warning); font-size:1.3rem;">Pending CTO</span>
       {% endif %}
     </div>
     <div class="stat-label">CTO Digital Signature</div>
@@ -88,17 +100,18 @@
 
 <!-- Action Card based on Status -->
 {% if batch.status == 'pending_cto' %}
-<div class="card" style="background:rgba(245, 158, 11, 0.08); border-left:4px solid #f59e0b; padding:18px 24px; margin-bottom:20px;">
+<div class="card" style="background:rgba(217, 119, 6, 0.08); border-left:4px solid var(--warning); padding:18px 24px; margin-bottom:20px;">
   <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px;">
     <div>
-      <h3 style="margin:0 0 4px; color:#d97706;">&#9203; Batch Awaiting CTO Review &amp; Signature</h3>
+      <h3 style="margin:0 0 4px; color:var(--warning);">Batch Awaiting CTO Review &amp; Signature</h3>
       <p class="muted" style="margin:0; font-size:0.92rem;">
         Company Seal and Statutory Date have been applied. CTO must review and authorize the digital signature.
       </p>
     </div>
     {% if is_cto %}
-    <a href="/batch/{{ batch_id }}/review" class="btn btn-primary" style="background:#10b981; border-color:#059669; padding:10px 20px;">
-      &#9997; Review &amp; Authorize CTO Signature &rarr;
+    <a href="/batch/{{ batch_id }}/review" class="btn btn-primary" style="background:var(--success); border-color:#047857; padding:10px 20px; display:inline-flex; align-items:center; gap:6px;">
+      <span>Review &amp; Authorize CTO Signature</span>
+      <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
     </a>
     {% else %}
     <span class="badge user-role-cto" style="padding:6px 14px; font-size:0.88rem;">CTO Notification Pending</span>
@@ -106,25 +119,31 @@
   </div>
 </div>
 {% elif batch.status in ['approved', 'done'] %}
-<div class="card" style="background:rgba(16, 185, 129, 0.08); border-left:4px solid #10b981; padding:20px 24px; margin-bottom:20px;">
+<div class="card" style="background:rgba(5, 150, 105, 0.08); border-left:4px solid var(--success); padding:20px 24px; margin-bottom:20px;">
   <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px;">
     <div>
-      <h3 style="margin:0 0 4px; color:#059669;">&#10004; 100% Audit Ready &bull; Fully Signed &amp; Stamped</h3>
+      <h3 style="margin:0 0 4px; color:var(--success);">100% Audit Ready &bull; Fully Signed &amp; Stamped</h3>
       <p class="muted" style="margin:0; font-size:0.92rem;">
         All documents have verified Date, Company Seal Stamp, and official CTO Digital Signature applied. Approved by {{ batch.approved_by_fullname or batch.approved_by_username or 'CTO' }} on {{ batch.approved_at }}.
       </p>
     </div>
     <div style="display:flex; gap:10px; flex-wrap:wrap;">
-      <a href="/batch/{{ batch_id }}/download-zip-pdf" class="btn btn-primary btn-large">&#128196; Download All as PDF (ZIP)</a>
-      <a href="/batch/{{ batch_id }}/download-zip" class="btn btn-secondary btn-large">&#128230; Download Originals (ZIP)</a>
+      <a href="/batch/{{ batch_id }}/download-zip-pdf" class="btn btn-primary btn-large" style="display:inline-flex; align-items:center; gap:6px;">
+        <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Download All as PDF (ZIP)
+      </a>
+      <a href="/batch/{{ batch_id }}/download-zip" class="btn btn-secondary btn-large" style="display:inline-flex; align-items:center; gap:6px;">
+        <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+        Download Originals (ZIP)
+      </a>
     </div>
   </div>
 </div>
 {% elif batch.status == 'changes_requested' %}
-<div class="card" style="background:rgba(239, 68, 68, 0.08); border-left:4px solid var(--danger); padding:18px 24px; margin-bottom:20px;">
-  <h3 style="margin:0 0 6px; color:var(--danger);">&#9888; Revisions Requested by CTO</h3>
+<div class="card" style="background:rgba(220, 38, 38, 0.08); border-left:4px solid var(--danger); padding:18px 24px; margin-bottom:20px;">
+  <h3 style="margin:0 0 6px; color:var(--danger);">Revisions Requested by CTO</h3>
   <p style="margin:0 0 12px; font-size:0.95rem;"><strong>Notes:</strong> {{ batch.rejection_reason }}</p>
-  <a href="/batch/{{ batch_id }}/place" class="btn btn-primary btn-sm">&#9881; Update Settings &amp; Resubmit</a>
+  <a href="/batch/{{ batch_id }}/place" class="btn btn-primary btn-sm">Update Settings &amp; Resubmit</a>
 </div>
 {% endif %}
 
@@ -158,7 +177,7 @@
             <strong>{{ f.original_name }}</strong>
             {% if f.has_existing_stamp %}
             <span class="badge" style="background:#0284c7; color:#fff; font-size:0.75rem; font-weight:600; padding:2px 8px; border-radius:12px;">
-              &#128278; Doc has Stamp in it
+              Original Stamp Present
             </span>
             {% endif %}
           </div>
@@ -172,41 +191,42 @@
           {% if f.category_needs_date == 0 %}
           <span class="badge badge-neutral" style="font-size:0.75rem;">N/A (Exempt)</span>
           {% elif f.has_date or batch.new_date %}
-          <span style="color:#059669; font-weight:600;">&#10004; {{ batch.new_date or 'Set' }}</span>
+          <span style="color:var(--success); font-weight:600;">{{ batch.new_date or 'Set' }}</span>
           {% else %}
           <span class="muted">&mdash;</span>
           {% endif %}
         </td>
         <td style="text-align:center;">
           {% if f.has_existing_stamp %}
-          <span style="color:#0284c7; font-weight:600;">&#10004; Original Stamp</span>
+          <span style="color:#0284c7; font-weight:600;">Original Stamp</span>
           {% elif f.has_stamp or f.status in ['stamped', 'success'] %}
-          <span style="color:#059669; font-weight:600;">&#10004; Stamped</span>
+          <span style="color:var(--success); font-weight:600;">Stamped</span>
           {% else %}
-          <span style="color:#d97706;">&#9203; Pending</span>
+          <span style="color:var(--warning); font-weight:600;">Pending</span>
           {% endif %}
         </td>
         <td style="text-align:center;">
           {% if f.has_signature or batch.status in ['approved', 'done'] %}
-          <span style="color:#6366f1; font-weight:700;">&#10004; Signed</span>
+          <span style="color:var(--primary); font-weight:700;">Signed</span>
           {% else %}
-          <span style="color:#d97706; font-size:0.85rem;">&#9203; Awaiting CTO</span>
+          <span style="color:var(--warning); font-size:0.85rem; font-weight:600;">Awaiting CTO</span>
           {% endif %}
         </td>
         <td>
           {% if batch.status in ['approved', 'done'] %}
-          <span class="status-badge status-success">Audit Ready</span>
+          <span class="status-badge status-success"><span class="status-dot status-dot-success"></span> Audit Ready</span>
           {% elif batch.status == 'pending_cto' %}
-          <span class="status-badge status-pending-cto">Pending CTO</span>
+          <span class="status-badge status-pending-cto"><span class="status-dot status-dot-warning"></span> Pending CTO</span>
           {% elif batch.status == 'changes_requested' %}
-          <span class="status-badge status-changes">Revise</span>
+          <span class="status-badge status-changes"><span class="status-dot status-dot-danger"></span> Revise</span>
           {% else %}
-          <span class="status-badge status-pending">{{ batch.status }}</span>
+          <span class="status-badge status-pending"><span class="status-dot status-dot-info"></span> {{ batch.status }}</span>
           {% endif %}
         </td>
         <td style="text-align:right; white-space:nowrap;">
-          <a class="btn-sm btn-secondary" href="/batch/{{ batch_id }}/view-pdf/{{ f.id }}" target="_blank" title="Preview PDF in tab">
-            &#128065; View
+          <a class="btn-sm btn-secondary" href="/batch/{{ batch_id }}/view-pdf/{{ f.id }}" target="_blank" title="Preview PDF in tab" style="display:inline-flex; align-items:center; gap:4px;">
+            <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            View
           </a>
           {% if batch.status in ['approved', 'done'] and f.status == 'success' %}
           <a class="btn-sm btn-secondary" href="/batch/{{ batch_id }}/download-pdf/{{ f.id }}">PDF</a>

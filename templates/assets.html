@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}CTO Signature & Stamp - Audit Report Stamping{% endblock %}
+{% block title %}CTO Signature & Stamp - ARS{% endblock %}
 {% block content %}
 <div class="page-header">
   <div>
@@ -11,7 +11,7 @@
 <div class="grid-2-col" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:20px;">
   <!-- CTO Signature Card -->
   <div class="card">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
       <h2 style="margin:0;">CTO Signature</h2>
       <span class="badge user-role-cto" style="font-size:0.75rem;">Managed by CTO</span>
     </div>
@@ -23,7 +23,10 @@
       
       {% if can_edit_signature %}
       <form method="post" action="/assets/clean-transparent/signature" style="margin-bottom:16px;">
-        <button type="submit" class="btn-secondary btn-sm">&#9986; Make Background Transparent</button>
+        <button type="submit" class="btn-secondary btn-sm" style="display:inline-flex; align-items:center; gap:6px;">
+          <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/><line x1="8.12" y1="8.12" x2="12" y2="12"/></svg>
+          Make Background Transparent
+        </button>
       </form>
       {% endif %}
     {% else %}
@@ -47,15 +50,16 @@
       </div>
     </form>
     {% else %}
-    <div style="margin-top:16px; padding:12px; background:rgba(0,0,0,0.03); border-radius:6px; font-size:0.85rem;" class="muted">
-      &#128274; Only the CTO account can modify or upload the official CTO signature image.
+    <div style="margin-top:16px; padding:12px; background:rgba(0,0,0,0.03); border-radius:6px; font-size:0.85rem; display:flex; align-items:center; gap:8px;" class="muted">
+      <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      Only the CTO account can modify or upload the official CTO signature image.
     </div>
     {% endif %}
   </div>
 
   <!-- Company Seal Card -->
   <div class="card">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
       <h2 style="margin:0;">Company Seal / Stamp</h2>
       <span class="badge user-role-accountant" style="font-size:0.75rem;">Managed by Accountant / HR</span>
     </div>
@@ -67,7 +71,10 @@
 
       {% if can_edit_stamp %}
       <form method="post" action="/assets/clean-transparent/stamp" style="margin-bottom:16px;">
-        <button type="submit" class="btn-secondary btn-sm">&#9986; Make Background Transparent</button>
+        <button type="submit" class="btn-secondary btn-sm" style="display:inline-flex; align-items:center; gap:6px;">
+          <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/><line x1="8.12" y1="8.12" x2="12" y2="12"/></svg>
+          Make Background Transparent
+        </button>
       </form>
       {% endif %}
     {% else %}
@@ -91,15 +98,19 @@
       </div>
     </form>
     {% else %}
-    <div style="margin-top:16px; padding:12px; background:rgba(0,0,0,0.03); border-radius:6px; font-size:0.85rem;" class="muted">
-      &#128274; Only Accountant or HR accounts can modify or upload the official Company Seal.
+    <div style="margin-top:16px; padding:12px; background:rgba(0,0,0,0.03); border-radius:6px; font-size:0.85rem; display:flex; align-items:center; gap:8px;" class="muted">
+      <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      Only Accountant or HR accounts can modify or upload the official Company Seal.
     </div>
     {% endif %}
   </div>
 </div>
 
 <div class="card" style="margin-top:20px;">
-  <h2>&#128161; Best Practices for Clear Stamping</h2>
+  <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+    <h2 style="margin:0; font-size:1.15rem;">Best Practices for Clear Stamping</h2>
+  </div>
   <ul style="color:var(--muted); font-size:0.92rem; line-height:1.6; margin:8px 0 0; padding-left:20px;">
     <li><strong>Transparent PNGs</strong> give the most realistic, authentic result because document text beneath the signature remains crisp.</li>
     <li>If you take a photo of a physical stamp or signature on paper, check the <strong>"Auto-remove white background"</strong> option to eliminate the paper background.</li>

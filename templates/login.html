@@ -1,55 +1,62 @@
 {% extends "base.html" %}
-{% block title %}Login - ARS{% endblock %}
+{% block title %}Sign In &bull; ARS Portal{% endblock %}
 {% block content %}
-<div class="card" style="max-width:460px; margin: 40px auto; padding:32px 28px;">
-  <div style="text-align:center; margin-bottom:24px;">
-    <div style="display:flex; align-items:center; justify-content:center; gap:14px; margin-bottom:8px;">
-      <img src="/static/img/company-logo.png" alt="Company Logo" style="height:52px; width:52px; object-fit:contain; filter:drop-shadow(0 2px 6px rgba(0,0,0,0.15));">
+<div class="card" style="max-width:440px; margin: 48px auto; padding:36px 32px; box-shadow:var(--shadow-md);">
+  <div style="text-align:center; margin-bottom:28px;">
+    <div style="display:flex; align-items:center; justify-content:center; gap:12px; margin-bottom:10px;">
+      <img src="/static/img/company-logo.png" alt="ARS Logo" style="height:48px; width:48px; object-fit:contain; filter:drop-shadow(0 2px 4px rgba(0,0,0,0.12));">
       <div style="text-align:left; line-height:1.15;">
-        <div style="font-size:1.9rem; font-weight:800; letter-spacing:0.04em; background:linear-gradient(135deg, var(--brand-blue), var(--brand-red)); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">ARS</div>
-        <div style="font-size:0.75rem; font-weight:600; text-transform:uppercase; letter-spacing:0.03em; color:var(--muted);">Audit Report Stamping</div>
+        <div style="font-size:1.85rem; font-weight:800; letter-spacing:0.04em; background:linear-gradient(135deg, var(--brand-blue-accent), var(--brand-red)); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">ARS</div>
+        <div style="font-size:0.72rem; font-weight:600; text-transform:uppercase; letter-spacing:0.04em; color:var(--text-muted);">Audit Report Stamping</div>
       </div>
     </div>
-    <p class="muted" style="margin:0; font-size:0.9rem;">Statutory Compliance &amp; Multi-Role Approval Portal</p>
+    <p class="muted" style="margin:0; font-size:0.88rem;">Statutory Compliance &amp; Multi-Role Approval Portal</p>
   </div>
 
   {% if error %}
-  <div class="error-banner" style="background:rgba(227, 36, 26, 0.1); border:1px solid var(--danger); color:var(--danger); padding:8px 12px; border-radius:6px; margin-bottom:14px; font-size:0.9rem;">
-    {{ error }}
+  <div class="alert alert-danger" style="margin-bottom:18px;">
+    <svg class="icon" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+    <span>{{ error }}</span>
   </div>
   {% endif %}
 
-  <!-- Role Selector Helper: fills username only and focuses password for manual entry -->
-  <div style="margin-bottom:20px; padding:14px; background:rgba(0,0,0,0.03); border:1px solid var(--border); border-radius:8px;">
-    <span class="muted" style="font-size:0.8rem; font-weight:600; text-transform:uppercase; letter-spacing:0.04em;">Select Role to fill Username:</span>
+  <!-- Role Quick-Select Buttons -->
+  <div style="margin-bottom:22px; padding:12px; background:var(--bg-subtle); border:1px solid var(--border); border-radius:8px;">
+    <span class="muted" style="font-size:0.76rem; font-weight:600; text-transform:uppercase; letter-spacing:0.04em;">Select Role:</span>
     <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-top:8px;">
-      <button type="button" class="btn-secondary btn-sm role-select-btn" onclick="selectRole('cto')" id="roleBtn_cto" style="padding:10px 4px; font-size:0.82rem; text-align:center;">
-        &#128737; <strong>CTO</strong><br><span class="muted" style="font-size:0.72rem;">Verify &amp; Sign</span>
+      <button type="button" class="btn btn-secondary btn-sm role-select-btn" onclick="selectRole('cto')" id="roleBtn_cto" style="padding:9px 4px; font-size:0.80rem; flex-direction:column; gap:4px;">
+        <svg class="icon icon-sm" style="color:var(--brand-blue-accent);" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 1.944A11.954 11.954 0 012.166 5C2.056 5.649 2 6.319 2 7c0 5.225 3.34 9.67 8 11.317C14.66 16.67 18 12.225 18 7c0-.682-.057-1.35-.166-2.001A11.954 11.954 0 0110 1.944z" clip-rule="evenodd"/></svg>
+        <span>CTO</span>
       </button>
-      <button type="button" class="btn-secondary btn-sm role-select-btn" onclick="selectRole('accountant')" id="roleBtn_accountant" style="padding:10px 4px; font-size:0.82rem; text-align:center;">
-        &#128202; <strong>Accountant</strong><br><span class="muted" style="font-size:0.72rem;">Date &amp; Stamp</span>
+      <button type="button" class="btn btn-secondary btn-sm role-select-btn" onclick="selectRole('accountant')" id="roleBtn_accountant" style="padding:9px 4px; font-size:0.80rem; flex-direction:column; gap:4px;">
+        <svg class="icon icon-sm" style="color:var(--success);" viewBox="0 0 20 20" fill="currentColor"><path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/></svg>
+        <span>Accountant</span>
       </button>
-      <button type="button" class="btn-secondary btn-sm role-select-btn" onclick="selectRole('hr')" id="roleBtn_hr" style="padding:10px 4px; font-size:0.82rem; text-align:center;">
-        &#128101; <strong>HR</strong><br><span class="muted" style="font-size:0.72rem;">Audit Monitor</span>
+      <button type="button" class="btn btn-secondary btn-sm role-select-btn" onclick="selectRole('hr')" id="roleBtn_hr" style="padding:9px 4px; font-size:0.80rem; flex-direction:column; gap:4px;">
+        <svg class="icon icon-sm" style="color:#a855f7;" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/></svg>
+        <span>HR</span>
       </button>
     </div>
   </div>
 
   <form method="post" action="/login" id="loginForm">
     <label for="username">Username</label>
-    <input type="text" id="username" name="username" placeholder="Enter username (e.g. cto, accountant, hr)" required autofocus autocomplete="username">
+    <input type="text" id="username" name="username" placeholder="Username (e.g. cto, accountant, hr)" required autofocus autocomplete="username">
 
-    <label for="password" style="margin-top:12px;">Password</label>
+    <label for="password" style="margin-top:14px;">Password</label>
     <input type="password" id="password" name="password" placeholder="Enter your password" required autocomplete="current-password">
 
-    <div style="margin-top:24px">
-      <button type="submit" class="btn-primary" style="width:100%; padding:11px; font-size:1rem; font-weight:600;">Sign In &rarr;</button>
+    <div style="margin-top:22px">
+      <button type="submit" class="btn btn-primary" style="width:100%; padding:11px; font-size:0.95rem;">
+        <span>Sign In to Portal</span>
+        <svg class="icon icon-sm" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+      </button>
     </div>
   </form>
 
-  <div style="margin-top:20px; padding-top:14px; border-top:1px solid var(--border); text-align:center;">
-    <p class="muted" style="font-size:0.82rem; margin:0;">
-      Secure login required. Please enter your credentials to access your role's audit console.
+  <div style="margin-top:24px; padding-top:16px; border-top:1px solid var(--border); text-align:center;">
+    <p class="muted" style="font-size:0.80rem; margin:0;">
+      Protected Enterprise System &bull; Authorized Personnel Only
     </p>
   </div>
 </div>
@@ -61,15 +68,14 @@
     pwdInput.value = '';
     pwdInput.focus();
 
-    // Highlight selected button
     document.querySelectorAll('.role-select-btn').forEach(function(b) {
-      b.style.borderColor = 'var(--border)';
-      b.style.background = '';
+      b.style.borderColor = 'var(--border-strong)';
+      b.style.background = 'var(--bg-subtle)';
     });
     var activeBtn = document.getElementById('roleBtn_' + role);
     if (activeBtn) {
-      activeBtn.style.borderColor = 'var(--brand-blue)';
-      activeBtn.style.background = 'rgba(37, 99, 235, 0.08)';
+      activeBtn.style.borderColor = 'var(--brand-blue-accent)';
+      activeBtn.style.background = 'rgba(37, 99, 235, 0.12)';
     }
   }
 </script>

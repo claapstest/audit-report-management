@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Configure Stamping - Batch #{{ batch_id }}{% endblock %}
+{% block title %}Configure Stamping - Batch #{{ batch_id }} - ARS{% endblock %}
 {% block content %}
 <div class="page-header">
   <div>
@@ -13,14 +13,19 @@
   <!-- Signature and Stamp Status Card -->
   <div class="card">
     <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
-      <h2>CTO Signature &amp; Company Stamp</h2>
-      <a href="/assets" class="btn-secondary btn-sm" target="_blank">&#9881; Manage Signatures &amp; Stamps</a>
+      <h2 style="margin:0;">CTO Signature &amp; Company Stamp</h2>
+      <a href="/assets" class="btn-secondary btn-sm" target="_blank" style="display:inline-flex; align-items:center; gap:6px;">
+        <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Manage Signatures &amp; Stamps
+      </a>
     </div>
 
-    <div class="assets-summary-row" style="display:flex; gap:20px; margin-top:12px; flex-wrap:wrap;">
+    <div class="assets-summary-row" style="display:flex; gap:20px; margin-top:14px; flex-wrap:wrap;">
       <div class="asset-card {% if has_signature %}asset-active{% else %}asset-missing{% endif %}">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-          <div class="asset-badge" id="placeSigBadge">{% if has_signature %}&#10003; CTO Signature Loaded{% else %}&#9888; Signature Missing{% endif %}</div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <div class="asset-badge" id="placeSigBadge">
+            {% if has_signature %}<span class="status-dot status-dot-success"></span> CTO Signature Active{% else %}<span class="status-dot status-dot-danger"></span> Signature Missing{% endif %}
+          </div>
           <button type="button" class="btn-secondary btn-sm" onclick="document.getElementById('placeSigInput').click()">Upload / Replace</button>
           <input type="file" id="placeSigInput" accept="image/png,image/jpeg" style="display:none">
         </div>
@@ -28,8 +33,10 @@
       </div>
 
       <div class="asset-card {% if has_stamp %}asset-active{% else %}asset-missing{% endif %}">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-          <div class="asset-badge" id="placeStampBadge">{% if has_stamp %}&#10003; Company Stamp Loaded{% else %}&#9888; Stamp Missing{% endif %}</div>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+          <div class="asset-badge" id="placeStampBadge">
+            {% if has_stamp %}<span class="status-dot status-dot-success"></span> Company Stamp Active{% else %}<span class="status-dot status-dot-danger"></span> Stamp Missing{% endif %}
+          </div>
           <button type="button" class="btn-secondary btn-sm" onclick="document.getElementById('placeStampInput').click()">Upload / Replace</button>
           <input type="file" id="placeStampInput" accept="image/png,image/jpeg" style="display:none">
         </div>
@@ -77,7 +84,7 @@
           {% for f in files %}
           {% set ext = f.original_name.split('.')[-1].lower() %}
           <option value="{{ f.id }}" data-ext="{{ ext }}" {% if f.id == preview_file_id %}selected{% endif %}>
-            {% if ext in ['xlsx', 'xls'] %}&#128202; [EXCEL] {% elif ext == 'docx' %}&#128196; [WORD] {% else %}&#128196; [PDF] {% endif %}{{ f.original_name }}{% if f.has_existing_stamp %} [Stamp Present]{% endif %}
+            {% if ext in ['xlsx', 'xls'] %}[EXCEL] {% elif ext == 'docx' %}[WORD] {% else %}[PDF] {% endif %}{{ f.original_name }}{% if f.has_existing_stamp %} [Stamp Present]{% endif %}
           </option>
           {% endfor %}
         </select>
@@ -87,7 +94,7 @@
     <p class="muted">Drag the signature and stamp boxes on the preview. If keyword detection cannot find a signatory line in any document, it safely stamps at this exact location.</p>
 
     {% if has_excel %}
-    <div style="margin-top:6px; margin-bottom:10px; padding:6px 12px; background:rgba(21, 128, 61, 0.08); border-left:3px solid #15803d; border-radius:4px; font-size:0.86rem; color:#15803d;">
+    <div style="margin-top:6px; margin-bottom:10px; padding:8px 14px; background:rgba(5, 150, 105, 0.08); border-left:3px solid var(--success); border-radius:4px; font-size:0.86rem; color:var(--success);">
       <strong>Excel (.xlsx / .xls) Reports:</strong> Select your Excel file above to preview the spreadsheet print layout and position the CTO Signature and Company Seal exactly where you need them.
     </div>
     {% endif %}
@@ -105,24 +112,27 @@
       </div>
 
       <div style="margin-left:auto; display:flex; gap:8px;">
-        <button type="button" class="btn-secondary btn-sm" id="testDetectBtn">&#128269; Test Auto-Detect on this Page</button>
+        <button type="button" class="btn-secondary btn-sm" id="testDetectBtn" style="display:inline-flex; align-items:center; gap:6px;">
+          <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          Test Auto-Detect on this Page
+        </button>
       </div>
     </div>
 
     <div id="detectStatusMsg" style="margin-top:8px; font-size:0.9rem; font-weight:500; display:none;"></div>
 
     <!-- Alert if previewed file has an existing stamp -->
-    <div id="existingStampAlert" class="stamp-alert-pill" style="display:none; margin-top:8px; padding:8px 14px; background:rgba(2, 132, 199, 0.15); border:1px solid #0284c7; border-radius:6px; color:#0284c7; font-size:0.88rem; font-weight:600;">
-      &#128278; Original Company Stamp detected in this document &mdash; Stamp will NOT be inserted to prevent duplicate stamping.
+    <div id="existingStampAlert" class="stamp-alert-pill" style="display:none; margin-top:8px; padding:8px 14px; background:rgba(2, 132, 199, 0.12); border:1px solid #0284c7; border-radius:6px; color:#0284c7; font-size:0.88rem; font-weight:600;">
+      Original Company Stamp detected in this document &mdash; Stamp will NOT be inserted to prevent duplicate stamping.
     </div>
 
     <!-- Restore controls when an overlay is removed with (X) -->
     <div id="restoreButtonsBar" style="display:flex; gap:10px; margin-top:10px; align-items:center;">
-      <button type="button" class="btn-secondary btn-sm" id="restoreSigBtn" style="display:none; color:#10b981; border-color:#10b981;">
-        &#43; Restore CTO Signature
+      <button type="button" class="btn-secondary btn-sm" id="restoreSigBtn" style="display:none; color:var(--success); border-color:var(--success);">
+        + Restore CTO Signature
       </button>
-      <button type="button" class="btn-secondary btn-sm" id="restoreStampBtn" style="display:none; color:#3b82f6; border-color:#3b82f6;">
-        &#43; Restore Company Seal
+      <button type="button" class="btn-secondary btn-sm" id="restoreStampBtn" style="display:none; color:var(--primary); border-color:var(--primary);">
+        + Restore Company Seal
       </button>
     </div>
 
@@ -131,14 +141,14 @@
       <img id="pageImg" src="/batch/{{ batch_id }}/preview-image?page={{ page_count }}&file_id={{ preview_file_id }}" alt="Page preview">
       
       <!-- Highlight box for detected keyword -->
-      <div id="keywordHighlightBox" style="display:none; position:absolute; border:2px dashed #10b981; background:rgba(16, 185, 129, 0.18); pointer-events:none; z-index:5; border-radius:4px;">
-        <span id="keywordHighlightLabel" style="position:absolute; top:-20px; left:0; background:#10b981; color:#fff; font-size:11px; padding:1px 6px; border-radius:3px; white-space:nowrap;">Detected</span>
+      <div id="keywordHighlightBox" style="display:none; position:absolute; border:2px dashed var(--success); background:rgba(5, 150, 105, 0.18); pointer-events:none; z-index:5; border-radius:4px;">
+        <span id="keywordHighlightLabel" style="position:absolute; top:-20px; left:0; background:var(--success); color:#fff; font-size:11px; padding:1px 6px; border-radius:3px; white-space:nowrap;">Detected</span>
       </div>
 
       {% if has_signature %}
       <div class="overlay-item" id="sigOverlay" style="left:5%; top:80%; width:20%;">
         <span class="overlay-label">CTO SIGNATURE</span>
-        <button type="button" class="overlay-close-btn" id="closeSigBtn" title="Remove CTO Signature (X)">&times;</button>
+        <button type="button" class="overlay-close-btn" id="closeSigBtn" title="Remove CTO Signature">&times;</button>
         <img src="/assets/preview/signature" draggable="false">
       </div>
       {% endif %}
@@ -146,7 +156,7 @@
       {% if has_stamp %}
       <div class="overlay-item" id="stampOverlay" style="left:28%; top:78%; width:20%;">
         <span class="overlay-label">COMPANY SEAL</span>
-        <button type="button" class="overlay-close-btn" id="closeStampBtn" title="Remove Company Seal Stamp (X)">&times;</button>
+        <button type="button" class="overlay-close-btn" id="closeStampBtn" title="Remove Company Seal Stamp">&times;</button>
         <img src="/assets/preview/stamp" draggable="false">
       </div>
       {% endif %}
@@ -198,7 +208,7 @@
     </div>
     {% endif %}
 
-    <div style="margin-top:16px; padding-top:14px; border-top:1px solid var(--border);">
+    <div style="margin-top:16px; padding-top:14px; border-top:1px solid var(--border-color, #e2e8f0);">
       <label for="newDate"><strong>Update Date in Documents (Optional)</strong></label>
       <input type="text" id="newDate" name="new_date" placeholder="e.g. 05 July 2026 or 05/07/2026">
       <p class="muted" style="font-size:0.85rem; margin:4px 0 0;">Leave blank to keep existing dates untouched. If filled, existing dates matching standard audit formats will be updated.</p>
@@ -208,10 +218,10 @@
   <!-- Documents list accordion -->
   <div class="card">
     <details>
-      <summary style="cursor:pointer; font-weight:600; font-size:1.05rem;">
+      <summary style="cursor:pointer; font-weight:600; font-size:1.05rem; padding:4px 0;">
         Review File Categories &amp; Task Rules ({{ files|length }} files)
       </summary>
-      <div style="margin-top:12px;">
+      <div style="margin-top:14px;">
         <table class="data-table">
           <thead>
             <tr>
@@ -229,7 +239,7 @@
                   <strong>{{ f.original_name }}</strong>
                   {% if f.has_existing_stamp %}
                   <span class="badge" style="background:#0284c7; color:#fff; font-size:0.75rem; font-weight:600; padding:2px 8px; border-radius:12px;">
-                    &#128278; Doc has Stamp in it
+                    Original Stamp Present
                   </span>
                   {% endif %}
                 </div>
@@ -237,19 +247,19 @@
               <td>
                 <label class="doc-opt-toggle" title="Click to toggle or remove signature for this document">
                   <input type="checkbox" name="apply_sig_{{ f.id }}" value="1" {% if f.apply_signature != 0 %}checked{% endif %} class="file-sig-chk" data-file-id="{{ f.id }}">
-                  <span class="doc-opt-pill sig-pill"><span class="opt-icon">&#10004;</span> Sign <span class="opt-cross" title="Remove signature">&times;</span></span>
+                  <span class="doc-opt-pill sig-pill">Sign <span class="opt-cross" title="Remove signature">&times;</span></span>
                 </label>
               </td>
               <td>
                 {% if f.has_existing_stamp %}
                 <span class="badge" style="background:#0284c7; color:#fff; font-size:0.75rem; font-weight:600; padding:3px 8px; border-radius:12px;" title="Original stamp detected in file &mdash; will NOT be stamped over">
-                  &#128278; Stamp Present (Skipped)
+                  Stamp Present (Skipped)
                 </span>
                 <input type="hidden" name="apply_stamp_{{ f.id }}" value="0">
                 {% else %}
                 <label class="doc-opt-toggle" title="Click to toggle or remove company stamp for this document">
                   <input type="checkbox" name="apply_stamp_{{ f.id }}" value="1" {% if f.apply_stamp != 0 %}checked{% endif %} class="file-stamp-chk" data-file-id="{{ f.id }}">
-                  <span class="doc-opt-pill stamp-pill"><span class="opt-icon">&#10004;</span> Stamp <span class="opt-cross" title="Remove stamp">&times;</span></span>
+                  <span class="doc-opt-pill stamp-pill">Stamp <span class="opt-cross" title="Remove stamp">&times;</span></span>
                 </label>
                 {% endif %}
               </td>
@@ -278,20 +288,21 @@
   <input type="hidden" name="stamp_y" id="stampYInput" value="78">
   <input type="hidden" name="stamp_w" id="stampWInput" value="20">
 
-  <div class="card" style="margin-top:20px; padding:18px 22px; background:linear-gradient(135deg, rgba(16,185,129,0.06), rgba(37,99,235,0.06)); border:1px solid rgba(16,185,129,0.25);">
+  <div class="card" style="margin-top:20px; padding:20px 24px; background:linear-gradient(135deg, rgba(5,150,105,0.06), rgba(37,99,235,0.06)); border:1px solid rgba(5,150,105,0.25);">
     <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
       <div>
-        <h3 style="margin:0 0 4px; color:#059669;">Ready to Submit for CTO Review &amp; Signature?</h3>
+        <h3 style="margin:0 0 4px; color:var(--success);">Ready to Submit for CTO Review &amp; Signature?</h3>
         <p class="muted" style="margin:0; font-size:0.88rem;">
-          Stamps the Company Seal and inserts the specified Date across all {{ files|length }} reports, then forwards to the CTO approval queue.
+          Stamps Company Seal and inserts specified Date across all {{ files|length }} reports, then forwards directly to CTO queue.
         </p>
       </div>
       <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
-        <button type="submit" name="action" value="submit_for_approval" class="btn-primary btn-large" style="background:#10b981; border-color:#059669; padding:12px 24px;">
-          &#128640; Apply Seal &amp; Date &bull; Submit to CTO &rarr;
+        <button type="submit" name="action" value="submit_for_approval" class="btn-primary btn-large" style="background:var(--success); border-color:#047857; padding:12px 24px; display:inline-flex; align-items:center; gap:8px;">
+          <span>Apply Seal &amp; Submit to CTO</span>
+          <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
         </button>
         <button type="submit" name="action" value="direct_process" class="btn-secondary btn-sm" title="Apply both seal and signature immediately in one step">
-          &#9889; Direct Sign &amp; Stamp (One Step)
+          Direct Sign &amp; Stamp
         </button>
         <a href="/batch/new" class="btn-secondary btn-sm">Cancel</a>
       </div>
@@ -332,14 +343,14 @@
           const overlay = document.querySelector("#sigOverlay img");
           if (overlay) overlay.src = data.preview_url;
           const badge = document.getElementById("placeSigBadge");
-          if (badge) badge.innerHTML = "&#10003; CTO Signature Loaded";
+          if (badge) badge.innerHTML = '<span class="status-dot status-dot-success"></span> CTO Signature Active';
         } else {
           const thumb = document.getElementById("placeStampImg");
           if (thumb) thumb.src = data.preview_url;
           const overlay = document.querySelector("#stampOverlay img");
           if (overlay) overlay.src = data.preview_url;
           const badge = document.getElementById("placeStampBadge");
-          if (badge) badge.innerHTML = "&#10003; Company Stamp Loaded";
+          if (badge) badge.innerHTML = '<span class="status-dot status-dot-success"></span> Company Stamp Active';
         }
       }
     })

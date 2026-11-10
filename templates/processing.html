@@ -1,24 +1,28 @@
 {% extends "base.html" %}
-{% block title %}Processing Batch #{{ batch_id }} - Audit Report Stamping{% endblock %}
+{% block title %}Processing Batch #{{ batch_id }} - ARS{% endblock %}
 {% block content %}
 <div class="page-header">
   <div>
     <h1>Batch #{{ batch_id }} Processing</h1>
-    <p class="muted">Stamping CTO signature, company seal, and generating audit documents...</p>
+    <p class="muted">Applying Company Seal, statutory Date, and compiling audit documents...</p>
   </div>
 </div>
 
-<div class="card" style="text-align:center; padding:36px 24px;">
-  <div style="font-size:2.5rem; margin-bottom:12px;" id="statusIcon">&#9881;</div>
+<div class="card" style="text-align:center; padding:40px 24px;">
+  <div style="margin-bottom:16px;" id="statusIcon">
+    <svg class="icon-xl spin" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.5">
+      <circle cx="12" cy="12" r="10" stroke-dasharray="32" stroke-linecap="round"/>
+    </svg>
+  </div>
   <h2 id="progressHeading" style="margin:0 0 8px;">Processing Documents...</h2>
-  <p class="muted" id="currentFileText" style="font-size:1.05rem; min-height:24px;">Starting up...</p>
+  <p class="muted" id="currentFileText" style="font-size:1.05rem; min-height:24px;">Starting up pipeline...</p>
 
   <!-- Progress Bar Container -->
-  <div class="progress-bar-wrap" style="margin:24px auto; max-width:600px; height:18px; background:var(--border); border-radius:10px; overflow:hidden; position:relative;">
+  <div class="progress-bar-wrap" style="margin:24px auto; max-width:600px; height:14px; background:var(--border-color, #e2e8f0); border-radius:10px; overflow:hidden; position:relative;">
     <div id="progressBar" style="width:0%; height:100%; background:linear-gradient(90deg, var(--brand-blue), var(--brand-red)); border-radius:10px; transition:width 0.3s ease;"></div>
   </div>
 
-  <div style="font-size:1.15rem; font-weight:600;" id="progressCount">
+  <div style="font-size:1.1rem; font-weight:600; color:var(--text);" id="progressCount">
     0 / {{ files|length }} files processed (0%)
   </div>
 </div>
@@ -26,12 +30,12 @@
 <!-- Live Activity Log -->
 <div class="card">
   <h2>Live Progress Log</h2>
-  <div id="logContainer" style="max-height:360px; overflow-y:auto; border:1px solid var(--border); border-radius:8px; padding:12px; background:rgba(0,0,0,0.02);">
+  <div id="logContainer" style="max-height:360px; overflow-y:auto; border:1px solid var(--border-color, #e2e8f0); border-radius:8px; padding:12px; background:rgba(0,0,0,0.01);">
     <ul id="logList" style="list-style:none; padding:0; margin:0;">
       {% for f in files %}
-      <li id="file-item-{{ f.id }}" style="padding:6px 0; border-bottom:1px solid rgba(0,0,0,0.05); display:flex; justify-content:space-between; align-items:center; font-size:0.92rem;">
+      <li id="file-item-{{ f.id }}" style="padding:8px 0; border-bottom:1px solid var(--border-color, #e2e8f0); display:flex; justify-content:space-between; align-items:center; font-size:0.92rem;">
         <span style="font-weight:500;">{{ f.original_name }}</span>
-        <span class="status-badge status-pending" id="file-status-{{ f.id }}">Waiting</span>
+        <span class="status-badge status-pending" id="file-status-{{ f.id }}"><span class="status-dot status-dot-info"></span> Waiting</span>
       </li>
       {% endfor %}
     </ul>
@@ -70,31 +74,29 @@
 
               if (f.status === "success") {
                 statusEl.className = "status-badge status-success";
-                statusEl.textContent = f.message ? f.message : "Success";
+                statusEl.innerHTML = '<span class="status-dot status-dot-success"></span> ' + (f.message ? f.message : "Success");
               } else if (f.status === "error") {
                 statusEl.className = "status-badge status-error";
-                statusEl.textContent = f.message ? f.message : "Error";
+                statusEl.innerHTML = '<span class="status-dot status-dot-danger"></span> ' + (f.message ? f.message : "Error");
               } else if (f.status === "processing") {
                 statusEl.className = "status-badge status-processing";
-                statusEl.textContent = "Processing...";
+                statusEl.innerHTML = '<span class="status-dot status-dot-warning"></span> Processing...';
               }
             });
           }
 
           if (data.status === "done") {
             progressHeading.textContent = "Batch Processing Complete!";
-            statusIcon.innerHTML = "&#10004;";
-            statusIcon.style.color = "var(--success)";
-            currentFileText.textContent = "All documents have been stamped. Redirecting to results...";
+            statusIcon.innerHTML = '<svg class="icon-xl" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>';
+            currentFileText.textContent = "All documents have been stamped. Redirecting to review...";
             setTimeout(() => {
               window.location.href = `/batch/${batchId}/results`;
             }, 1000);
             return;
           } else if (data.status === "error") {
             progressHeading.textContent = "Processing Error Occurred";
-            statusIcon.innerHTML = "&#9888;";
-            statusIcon.style.color = "var(--danger)";
-            currentFileText.textContent = "One or more files failed during processing.";
+            statusIcon.innerHTML = '<svg class="icon-xl" viewBox="0 0 24 24" fill="none" stroke="var(--danger)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>';
+            currentFileText.textContent = "One or more files encountered an issue.";
             return;
           }
 
@@ -110,4 +112,3 @@
   })();
 </script>
 {% endblock %}
-

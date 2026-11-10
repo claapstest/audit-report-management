@@ -147,14 +147,14 @@
       const kws = keywordsInput ? encodeURIComponent(keywordsInput.value) : "";
 
       detectStatusMsg.style.display = "block";
-      detectStatusMsg.innerHTML = '<span class="muted">&#8987; Scanning page text for keywords...</span>';
+      detectStatusMsg.innerHTML = '<span class="muted" style="display:inline-flex; align-items:center; gap:6px;"><svg class="icon spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" stroke-dasharray="32" stroke-linecap="round"/></svg> Scanning page text for keywords...</span>';
 
       fetch(`/batch/${batchId}/detect-keyword?page=${pageNum}&file_id=${fileId}&keywords=${kws}`)
         .then(res => res.json())
         .then(data => {
           if (data.matches && data.matches.length > 0) {
             const m = data.matches[0];
-            detectStatusMsg.innerHTML = `<span style="color:#10b981;">&#10004; Match found: <strong>"${m.text}"</strong> (keyword: ${m.matched_keyword})</span>`;
+            detectStatusMsg.innerHTML = `<span style="color:#059669; display:inline-flex; align-items:center; gap:6px;"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Match found: <strong>"${m.text}"</strong> (keyword: ${m.matched_keyword})</span>`;
             if (highlightBox && highlightLabel) {
               highlightBox.style.display = "block";
               highlightBox.style.left = `${m.x0_pct}%`;
@@ -165,11 +165,11 @@
             }
           } else {
             if (highlightBox) highlightBox.style.display = "none";
-            detectStatusMsg.innerHTML = '<span class="muted">&#8505; No keyword match on this specific page. Engine will scan other pages or use fallback position.</span>';
+            detectStatusMsg.innerHTML = '<span class="muted" style="display:inline-flex; align-items:center; gap:6px;"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg> No keyword match on this specific page. Engine will scan other pages or use fallback position.</span>';
           }
         })
         .catch(err => {
-          detectStatusMsg.innerHTML = `<span class="error">&#9888; Detection error: ${err.message}</span>`;
+          detectStatusMsg.innerHTML = `<span class="error" style="display:inline-flex; align-items:center; gap:6px;"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Detection error: ${err.message}</span>`;
         });
     });
   }
