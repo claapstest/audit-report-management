@@ -15,17 +15,17 @@
   </div>
   {% endif %}
 
-  <!-- Quick Role Switcher for instant login -->
-  <div style="margin-bottom:20px; padding:12px; background:rgba(0,0,0,0.03); border:1px solid var(--border); border-radius:8px;">
-    <span class="muted" style="font-size:0.8rem; font-weight:600; text-transform:uppercase; letter-spacing:0.04em;">Select Account Role to Sign In:</span>
+  <!-- Role Selector Helper: fills username only and focuses password for manual entry -->
+  <div style="margin-bottom:20px; padding:14px; background:rgba(0,0,0,0.03); border:1px solid var(--border); border-radius:8px;">
+    <span class="muted" style="font-size:0.8rem; font-weight:600; text-transform:uppercase; letter-spacing:0.04em;">Select Role to fill Username:</span>
     <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-top:8px;">
-      <button type="button" class="btn-secondary btn-sm" onclick="quickFill('cto', 'cto123')" style="padding:8px 4px; font-size:0.82rem; text-align:center;">
+      <button type="button" class="btn-secondary btn-sm role-select-btn" onclick="selectRole('cto')" id="roleBtn_cto" style="padding:10px 4px; font-size:0.82rem; text-align:center;">
         &#128737; <strong>CTO</strong><br><span class="muted" style="font-size:0.72rem;">Verify &amp; Sign</span>
       </button>
-      <button type="button" class="btn-secondary btn-sm" onclick="quickFill('accountant', 'accountant123')" style="padding:8px 4px; font-size:0.82rem; text-align:center;">
+      <button type="button" class="btn-secondary btn-sm role-select-btn" onclick="selectRole('accountant')" id="roleBtn_accountant" style="padding:10px 4px; font-size:0.82rem; text-align:center;">
         &#128202; <strong>Accountant</strong><br><span class="muted" style="font-size:0.72rem;">Date &amp; Stamp</span>
       </button>
-      <button type="button" class="btn-secondary btn-sm" onclick="quickFill('hr', 'hr123')" style="padding:8px 4px; font-size:0.82rem; text-align:center;">
+      <button type="button" class="btn-secondary btn-sm role-select-btn" onclick="selectRole('hr')" id="roleBtn_hr" style="padding:10px 4px; font-size:0.82rem; text-align:center;">
         &#128101; <strong>HR</strong><br><span class="muted" style="font-size:0.72rem;">Audit Monitor</span>
       </button>
     </div>
@@ -33,28 +33,40 @@
 
   <form method="post" action="/login" id="loginForm">
     <label for="username">Username</label>
-    <input type="text" id="username" name="username" value="cto" required autofocus>
+    <input type="text" id="username" name="username" placeholder="Enter username (e.g. cto, accountant, hr)" required autofocus autocomplete="username">
 
-    <label for="password">Password</label>
-    <input type="password" id="password" name="password" value="cto123" required>
+    <label for="password" style="margin-top:12px;">Password</label>
+    <input type="password" id="password" name="password" placeholder="Enter your password" required autocomplete="current-password">
 
-    <div style="margin-top:20px">
-      <button type="submit" class="btn-primary" style="width:100%; padding:10px;">Sign In to Portal &rarr;</button>
+    <div style="margin-top:24px">
+      <button type="submit" class="btn-primary" style="width:100%; padding:11px; font-size:1rem; font-weight:600;">Sign In &rarr;</button>
     </div>
   </form>
 
   <div style="margin-top:20px; padding-top:14px; border-top:1px solid var(--border); text-align:center;">
     <p class="muted" style="font-size:0.82rem; margin:0;">
-      Configured Roles: <code>cto</code> (CTO Sign-off), <code>accountant</code> (Date &amp; Stamp), <code>hr</code> (Audit Monitor)
+      Secure login required. Please enter your credentials to access your role's audit console.
     </p>
   </div>
 </div>
 
 <script>
-  function quickFill(user, pass) {
-    document.getElementById('username').value = user;
-    document.getElementById('password').value = pass;
-    document.getElementById('loginForm').submit();
+  function selectRole(role) {
+    document.getElementById('username').value = role;
+    var pwdInput = document.getElementById('password');
+    pwdInput.value = '';
+    pwdInput.focus();
+
+    // Highlight selected button
+    document.querySelectorAll('.role-select-btn').forEach(function(b) {
+      b.style.borderColor = 'var(--border)';
+      b.style.background = '';
+    });
+    var activeBtn = document.getElementById('roleBtn_' + role);
+    if (activeBtn) {
+      activeBtn.style.borderColor = 'var(--brand-blue)';
+      activeBtn.style.background = 'rgba(37, 99, 235, 0.08)';
+    }
   }
 </script>
 {% endblock %}
