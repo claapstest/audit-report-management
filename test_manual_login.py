@@ -47,3 +47,4 @@ assert res_good_hr.headers["Location"] == "/batches"
 print("5. POST /login with manual HR password: Authenticated & redirected to audit monitor.")
 
 print("\nALL LOGIN TESTS PASSED 100%!")
+
