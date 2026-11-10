@@ -71,6 +71,50 @@ body {
   gap: 24px;
 }
 
+.brand-link {
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 2px 0;
+  transition: opacity 0.15s ease;
+}
+
+.brand-link:hover {
+  opacity: 0.9;
+}
+
+.brand-logo {
+  height: 38px;
+  width: 38px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15));
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  line-height: 1.1;
+}
+
+.brand-ars {
+  font-weight: 800;
+  font-size: 1.3rem;
+  letter-spacing: 0.04em;
+  background: linear-gradient(135deg, var(--brand-blue), var(--brand-red));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.brand-sub {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--muted);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
 .brand-badge {
   font-weight: 700;
   font-size: 1.05rem;
@@ -80,8 +124,6 @@ body {
   -webkit-text-fill-color: transparent;
   padding: 4px 0;
 }
-
-.brand-link { text-decoration: none; display: flex; align-items: center; }
 
 .nav-links {
   display: flex;

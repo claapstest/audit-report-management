@@ -27,7 +27,7 @@ def _load_or_create_secret_key() -> str:
     return key
 
 
-app = FastAPI(title="Audit Report Stamping")
+app = FastAPI(title="ARS - Audit Report Stamping")
 app.add_middleware(SessionMiddleware, secret_key=_load_or_create_secret_key(), same_site="lax")
 app.mount("/static", StaticFiles(directory=str(BASE_DIR / "static")), name="static")
 

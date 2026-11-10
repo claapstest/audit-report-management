@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% block title %}Audit Report Stamping{% endblock %}</title>
+  <title>{% block title %}ARS - Audit Report Stamping{% endblock %}</title>
   <link rel="icon" type="image/png" href="/static/img/favicon.png">
   <link rel="stylesheet" href="/static/style.css?v={{ asset_version }}">
 </head>
@@ -11,8 +11,12 @@
   {% if username %}
   <header class="topbar">
     <div class="topbar-left">
-      <a href="{% if role == 'cto' %}/batches?filter=pending{% elif role == 'hr' %}/batches{% else %}/batch/new{% endif %}" class="brand-link">
-        <span class="brand-badge">Audit Report Stamping</span>
+      <a href="{% if role == 'cto' %}/batches?filter=pending{% elif role == 'hr' %}/batches{% else %}/batch/new{% endif %}" class="brand-link" title="ARS - Audit Report Stamping">
+        <img src="/static/img/company-logo.png" alt="ARS Logo" class="brand-logo">
+        <div class="brand-text">
+          <span class="brand-ars">ARS</span>
+          <span class="brand-sub">Audit Report Stamping</span>
+        </div>
       </a>
       <nav class="nav-links">
         {% if role == 'cto' %}
