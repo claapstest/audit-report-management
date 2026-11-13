@@ -12,11 +12,7 @@
   <header class="topbar">
     <div class="topbar-left">
       <a href="{% if role == 'cto' %}/batches?filter=pending{% elif role == 'hr' %}/batches{% else %}/batch/new{% endif %}" class="brand-link" title="ARS - Audit Report Stamping">
-        <img src="/static/img/company-logo.png" alt="ARS Logo" class="brand-logo">
-        <div class="brand-text">
-          <span class="brand-ars">ARS</span>
-          <span class="brand-sub">Audit Report Stamping</span>
-        </div>
+        <img src="/static/img/ars-login-logo.png" alt="ARS - Audit Report Stamping" class="brand-logo" style="height:36px; width:auto; max-width:140px; object-fit:contain;">
       </a>
       <nav class="nav-links">
         {% if role == 'cto' %}

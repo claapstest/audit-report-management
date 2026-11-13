@@ -174,16 +174,16 @@
             <button type="button" class="btn btn-secondary btn-sm" id="sigPageBtn" onclick="jumpToSignPage()" style="padding:2px 8px; font-size:0.78rem;" title="Jump to Signatory page">Sign Page</button>
           </div>
 
-          <a id="openFullPdfBtn" href="/batch/{{ batch_id }}/view-pdf/{% if files and files|length > 0 %}{{ files[0].id }}{% else %}0{% endif %}" target="_blank" class="btn btn-secondary btn-sm" style="display:inline-flex; align-items:center; gap:4px; color:#fff; border-color:#555;">
+          <a id="openFullPdfBtn" href="/batch/{{ batch_id }}/view-pdf/{% if files and files|length > 0 %}{{ files[0].id }}{% else %}0{% endif %}" target="_blank" class="btn btn-secondary btn-sm" style="display:inline-flex; align-items:center; gap:4px;">
             <span>Open PDF</span>
             <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
           </a>
         </div>
       </div>
 
-      <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; background:#1e293b; overflow:auto; padding:16px; position:relative; min-height:480px;">
+      <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; background:#f1f5f9; border:1px solid var(--border); border-radius:8px; overflow:auto; padding:16px; position:relative; min-height:480px;">
         <!-- Loading Spinner -->
-        <div id="previewLoading" style="display:none; position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); background:rgba(15,23,42,0.85); color:#fff; padding:12px 20px; border-radius:8px; font-size:0.9rem; z-index:10; border:1px solid rgba(255,255,255,0.1);">
+        <div id="previewLoading" style="display:none; position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); background:#ffffff; color:var(--text); padding:12px 20px; border-radius:8px; font-size:0.9rem; z-index:10; border:1px solid var(--border); box-shadow:var(--shadow-md);">
           <div style="display:flex; align-items:center; gap:8px;">
             <svg class="icon spin" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10" stroke-dasharray="32" stroke-linecap="round"/></svg>
             <span>Rendering Document Preview...</span>
