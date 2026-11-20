@@ -1,29 +1,110 @@
 {% extends "base.html" %}
-{% block title %}Processing Batch #{{ batch_id }} - ARS{% endblock %}
+{% set is_done = is_already_done or (batch.status in ['done', 'approved', 'pending_cto']) or (batch.total_files > 0 and batch.processed_files >= batch.total_files) %}
+{% block title %}{% if is_done %}Batch #{{ batch_id }} Processed - ARS{% else %}Processing Batch #{{ batch_id }} - ARS{% endif %}{% endblock %}
 {% block content %}
+<style>
+  .checkmark-wrapper {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 84px;
+    height: 84px;
+    border-radius: 50%;
+    background: rgba(16, 185, 129, 0.12);
+    border: 2px solid rgba(16, 185, 129, 0.3);
+    margin: 0 auto 16px;
+    animation: checkmarkPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  }
+  .checkmark-svg {
+    width: 52px;
+    height: 52px;
+    stroke: #10b981;
+    stroke-width: 3.8;
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .checkmark-circle {
+    stroke-dasharray: 156;
+    stroke-dashoffset: 156;
+    animation: checkmarkCircle 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+  }
+  .checkmark-check {
+    stroke-dasharray: 48;
+    stroke-dashoffset: 48;
+    animation: checkmarkCheck 0.35s cubic-bezier(0.65, 0, 0.45, 1) 0.4s forwards;
+  }
+  @keyframes checkmarkCircle {
+    100% {
+      stroke-dashoffset: 0;
+    }
+  }
+  @keyframes checkmarkCheck {
+    100% {
+      stroke-dashoffset: 0;
+    }
+  }
+  @keyframes checkmarkPop {
+    0% {
+      transform: scale(0.6);
+      opacity: 0;
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+</style>
+
 <div class="page-header">
   <div>
-    <h1>Batch #{{ batch_id }} Processing</h1>
-    <p class="muted">Applying Company Seal, statutory Date, and compiling audit documents...</p>
+    <h1 id="pageTitle">{% if is_done %}Batch #{{ batch_id }} Processed{% else %}Batch #{{ batch_id }} Processing{% endif %}</h1>
+    <p class="muted" id="pageSubtitle">{% if is_done %}All audit documents have been successfully processed.{% else %}Applying Company Seal, statutory Date, and compiling audit documents...{% endif %}</p>
   </div>
 </div>
 
 <div class="card" style="text-align:center; padding:40px 24px;">
-  <div style="margin-bottom:16px;" id="statusIcon">
+  <div style="margin-bottom:16px; min-height:84px; display:flex; align-items:center; justify-content:center;" id="statusIcon">
+    {% if is_done %}
+    <div class="checkmark-wrapper">
+      <svg class="checkmark-svg" viewBox="0 0 52 52">
+        <circle class="checkmark-circle" cx="26" cy="26" r="24"/>
+        <path class="checkmark-check" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+      </svg>
+    </div>
+    {% else %}
     <svg class="icon-xl spin" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.5">
       <circle cx="12" cy="12" r="10" stroke-dasharray="32" stroke-linecap="round"/>
     </svg>
+    {% endif %}
   </div>
-  <h2 id="progressHeading" style="margin:0 0 8px;">Processing Documents...</h2>
-  <p class="muted" id="currentFileText" style="font-size:1.05rem; min-height:24px;">Starting up pipeline...</p>
+
+  <h2 id="progressHeading" style="margin:0 0 8px; font-size:1.6rem; font-weight:700; color:var(--text);">{% if is_done %}Processed Documents{% else %}Processing Documents...{% endif %}</h2>
+  <p class="muted" id="currentFileText" style="font-size:1.05rem; min-height:24px;">{% if is_done %}All documents have been successfully processed.{% else %}Starting up pipeline...{% endif %}</p>
 
   <!-- Progress Bar Container -->
   <div class="progress-bar-wrap" style="margin:24px auto; max-width:600px; height:14px; background:var(--border-color, #e2e8f0); border-radius:10px; overflow:hidden; position:relative;">
-    <div id="progressBar" style="width:0%; height:100%; background:linear-gradient(90deg, var(--brand-blue), var(--brand-red)); border-radius:10px; transition:width 0.3s ease;"></div>
+    <div id="progressBar" style="width:{% if is_done %}100%{% else %}0%{% endif %}; height:100%; background:{% if is_done %}#10b981{% else %}linear-gradient(90deg, var(--brand-blue), var(--brand-red)){% endif %}; border-radius:10px; transition:width 0.3s ease, background 0.3s ease;"></div>
   </div>
 
-  <div style="font-size:1.1rem; font-weight:600; color:var(--text);" id="progressCount">
-    0 / {{ files|length }} files processed (0%)
+  <div style="font-size:1.1rem; font-weight:600; color:{% if is_done %}#10b981{% else %}var(--text){% endif %};" id="progressCount">
+    {% if is_done %}
+      {{ files|length }} / {{ files|length }} files processed (100%)
+    {% else %}
+      0 / {{ files|length }} files processed (0%)
+    {% endif %}
+  </div>
+
+  <!-- Completion Actions Container -->
+  {% set target_url = ('/batch/' ~ batch_id ~ '/monitor') if (batch.status == 'pending_cto') else ('/batch/' ~ batch_id ~ '/results') %}
+  <div id="completionActions" style="display:{% if is_done %}flex{% else %}none{% endif %}; margin-top:24px; justify-content:center; gap:12px; flex-wrap:wrap;">
+    <a id="viewProcessedBtn" href="{{ target_url }}" class="btn btn-primary btn-large" style="background:#10b981; border-color:#059669; padding:12px 28px; font-weight:600; font-size:1.05rem; display:inline-flex; align-items:center; gap:8px; box-shadow:0 4px 14px rgba(16,185,129,0.3);">
+      <span>View Processed Documents</span>
+      <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+    </a>
+    <a href="/batches" class="btn btn-secondary" style="padding:12px 24px; font-size:1rem;">
+      All Batches
+    </a>
   </div>
 </div>
 
@@ -35,7 +116,13 @@
       {% for f in files %}
       <li id="file-item-{{ f.id }}" style="padding:8px 0; border-bottom:1px solid var(--border-color, #e2e8f0); display:flex; justify-content:space-between; align-items:center; font-size:0.92rem;">
         <span style="font-weight:500;">{{ f.original_name }}</span>
+        {% if f.status in ['success', 'stamped'] or is_done %}
+        <span class="status-badge status-success" id="file-status-{{ f.id }}"><span class="status-dot status-dot-success"></span> {{ f.message or "Processed" }}</span>
+        {% elif f.status == 'error' %}
+        <span class="status-badge status-error" id="file-status-{{ f.id }}"><span class="status-dot status-dot-danger"></span> {{ f.message or "Error" }}</span>
+        {% else %}
         <span class="status-badge status-pending" id="file-status-{{ f.id }}"><span class="status-dot status-dot-info"></span> Waiting</span>
+        {% endif %}
       </li>
       {% endfor %}
     </ul>
@@ -51,19 +138,104 @@
     const currentFileText = document.getElementById("currentFileText");
     const progressHeading = document.getElementById("progressHeading");
     const statusIcon = document.getElementById("statusIcon");
+    const pageTitle = document.getElementById("pageTitle");
+    const pageSubtitle = document.getElementById("pageSubtitle");
+    const completionActions = document.getElementById("completionActions");
+    const viewProcessedBtn = document.getElementById("viewProcessedBtn");
+
+    let isCompletedHandled = {{ 'true' if is_done else 'false' }};
+
+    function handleCompleted(data, completed, total) {
+      if (isCompletedHandled) return;
+      isCompletedHandled = true;
+
+      // 1. Green tick animation
+      if (statusIcon) {
+        statusIcon.innerHTML = `
+          <div class="checkmark-wrapper">
+            <svg class="checkmark-svg" viewBox="0 0 52 52">
+              <circle class="checkmark-circle" cx="26" cy="26" r="24"/>
+              <path class="checkmark-check" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+            </svg>
+          </div>
+        `;
+      }
+
+      // 2. Heading: "Processed Documents"
+      if (progressHeading) {
+        progressHeading.textContent = "Processed Documents";
+        progressHeading.style.color = "var(--text)";
+      }
+
+      // 3. Subtitle / description
+      if (currentFileText) {
+        currentFileText.textContent = "All documents have been successfully processed.";
+      }
+      if (pageTitle) pageTitle.textContent = `Batch #${batchId} Processed`;
+      if (pageSubtitle) pageSubtitle.textContent = "All audit documents have been successfully processed.";
+
+      // 4. Progress bar turns solid green
+      if (progressBar) {
+        progressBar.style.width = "100%";
+        progressBar.style.background = "#10b981";
+      }
+
+      // 5. Progress count
+      if (progressCount) {
+        const finalCount = total > 0 ? total : totalFiles;
+        progressCount.textContent = `${finalCount} / ${finalCount} files processed (100%)`;
+        progressCount.style.color = "#10b981";
+      }
+
+      // 6. Update all file badges to Success in log if not error
+      if (data && data.files) {
+        data.files.forEach(f => {
+          const statusEl = document.getElementById(`file-status-${f.id}`);
+          if (statusEl && f.status !== "error") {
+            statusEl.className = "status-badge status-success";
+            statusEl.innerHTML = '<span class="status-dot status-dot-success"></span> ' + (f.message ? f.message : "Processed");
+          }
+        });
+      }
+
+      // 7. Reveal action buttons
+      const redirectUrl = (data && data.status === "pending_cto") ? `/batch/${batchId}/monitor` : `/batch/${batchId}/results`;
+      if (viewProcessedBtn) viewProcessedBtn.href = redirectUrl;
+      if (completionActions) completionActions.style.display = "flex";
+    }
 
     function pollProgress() {
+      if (isCompletedHandled) return;
+
       fetch(`/batch/${batchId}/progress?t=${Date.now()}`)
         .then(res => res.json())
         .then(data => {
+          if (isCompletedHandled) return;
+
           const completed = data.completed || 0;
           const total = data.total || totalFiles || 1;
           const pct = data.percent || Math.round((completed / total) * 100);
 
-          progressBar.style.width = pct + "%";
-          progressCount.textContent = `${completed} / ${total} files processed (${pct}%)`;
+          // Fast-path completion: if all files completed or status is terminal
+          const isDone = Boolean(data.is_completed) ||
+                         (completed >= total && total > 0) ||
+                         ["done", "approved", "pending_cto"].includes(data.status);
 
-          if (data.current_file) {
+          if (isDone && data.status !== "error") {
+            handleCompleted(data, completed, total);
+            return;
+          } else if (data.status === "error") {
+            isCompletedHandled = true;
+            if (progressHeading) progressHeading.textContent = "Processing Error Occurred";
+            if (statusIcon) statusIcon.innerHTML = '<svg class="icon-xl" viewBox="0 0 24 24" fill="none" stroke="var(--danger)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>';
+            if (currentFileText) currentFileText.textContent = "One or more files encountered an issue.";
+            return;
+          }
+
+          if (progressBar) progressBar.style.width = pct + "%";
+          if (progressCount) progressCount.textContent = `${completed} / ${total} files processed (${pct}%)`;
+
+          if (data.current_file && pct < 100 && currentFileText) {
             currentFileText.textContent = `Current: ${data.current_file}`;
           }
 
@@ -72,7 +244,7 @@
               const statusEl = document.getElementById(`file-status-${f.id}`);
               if (!statusEl) return;
 
-              if (f.status === "success") {
+              if (f.status === "success" || f.status === "stamped") {
                 statusEl.className = "status-badge status-success";
                 statusEl.innerHTML = '<span class="status-dot status-dot-success"></span> ' + (f.message ? f.message : "Success");
               } else if (f.status === "error") {
@@ -85,30 +257,17 @@
             });
           }
 
-          if (data.status === "done") {
-            progressHeading.textContent = "Batch Processing Complete!";
-            statusIcon.innerHTML = '<svg class="icon-xl" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>';
-            currentFileText.textContent = "All documents have been stamped. Redirecting to review...";
-            setTimeout(() => {
-              window.location.href = `/batch/${batchId}/results`;
-            }, 1000);
-            return;
-          } else if (data.status === "error") {
-            progressHeading.textContent = "Processing Error Occurred";
-            statusIcon.innerHTML = '<svg class="icon-xl" viewBox="0 0 24 24" fill="none" stroke="var(--danger)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>';
-            currentFileText.textContent = "One or more files encountered an issue.";
-            return;
-          }
-
-          setTimeout(pollProgress, 600);
+          setTimeout(pollProgress, 500);
         })
         .catch(err => {
           console.error("Polling error:", err);
-          setTimeout(pollProgress, 1500);
+          setTimeout(pollProgress, 1200);
         });
     }
 
-    pollProgress();
+    if (!isCompletedHandled) {
+      pollProgress();
+    }
   })();
 </script>
 {% endblock %}

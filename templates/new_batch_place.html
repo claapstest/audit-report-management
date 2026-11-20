@@ -13,7 +13,7 @@
   <!-- Signature and Stamp Status Card -->
   <div class="card">
     <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
-      <h2 style="margin:0;">CTO Signature &amp; Company Stamp</h2>
+      <h2 style="margin:0;">Official Signature &amp; Company Stamp</h2>
       <a href="/assets" class="btn-secondary btn-sm" target="_blank" style="display:inline-flex; align-items:center; gap:6px;">
         <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
         Manage Signatures &amp; Stamps
@@ -24,7 +24,7 @@
       <div class="asset-card {% if has_signature %}asset-active{% else %}asset-missing{% endif %}">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
           <div class="asset-badge" id="placeSigBadge">
-            {% if has_signature %}<span class="status-dot status-dot-success"></span> CTO Signature Active{% else %}<span class="status-dot status-dot-danger"></span> Signature Missing{% endif %}
+            {% if has_signature %}<span class="status-dot status-dot-success"></span> Signature Active{% else %}<span class="status-dot status-dot-danger"></span> Signature Missing{% endif %}
           </div>
           <button type="button" class="btn-secondary btn-sm" onclick="document.getElementById('placeSigInput').click()">Upload / Replace</button>
           <input type="file" id="placeSigInput" accept="image/png,image/jpeg" style="display:none">
@@ -133,7 +133,7 @@
     <!-- Restore controls when an overlay is removed with (X) -->
     <div id="restoreButtonsBar" style="display:flex; gap:10px; margin-top:10px; align-items:center;">
       <button type="button" class="btn-secondary btn-sm" id="restoreSigBtn" style="display:none; color:var(--success); border-color:var(--success);">
-        + Restore CTO Signature
+        + Restore Signature
       </button>
       <button type="button" class="btn-secondary btn-sm" id="restoreStampBtn" style="display:none; color:var(--primary); border-color:var(--primary);">
         + Restore Company Seal
@@ -151,8 +151,8 @@
 
       {% if has_signature %}
       <div class="overlay-item" id="sigOverlay" style="left:5%; top:80%; width:20%;">
-        <span class="overlay-label">CTO SIGNATURE</span>
-        <button type="button" class="overlay-close-btn" id="closeSigBtn" title="Remove CTO Signature">&times;</button>
+        <span class="overlay-label">SIGNATURE</span>
+        <button type="button" class="overlay-close-btn" id="closeSigBtn" title="Remove Signature">&times;</button>
         <img src="/assets/preview/signature" draggable="false">
       </div>
       {% endif %}
@@ -170,7 +170,7 @@
     <div class="field-row" style="margin-top:16px;">
       {% if has_signature %}
       <div style="flex:1;">
-        <label for="sigWidthSlider">CTO Signature Size: <span id="sigWidthVal">20%</span></label>
+        <label for="sigWidthSlider">Signature Size: <span id="sigWidthVal">20%</span></label>
         <input type="range" id="sigWidthSlider" min="5" max="45" value="20">
       </div>
       {% endif %}
@@ -191,7 +191,7 @@
     
     <div class="checkbox-row" style="margin-bottom:8px;">
       <input type="checkbox" id="includeSignature" name="include_signature" {% if has_signature %}checked{% endif %} {% if not has_signature %}disabled{% endif %}>
-      <label for="includeSignature" style="margin:0"><strong>Apply CTO Signature</strong></label>
+      <label for="includeSignature" style="margin:0"><strong>Apply Signature</strong></label>
     </div>
 
     <div class="checkbox-row" style="margin-bottom:8px;">
@@ -230,7 +230,7 @@
           <thead>
             <tr>
               <th>File Name</th>
-              <th style="min-width:130px;">CTO Signature</th>
+              <th style="min-width:130px;">Signature</th>
               <th style="min-width:160px;">Company Seal</th>
               <th>Category Rule</th>
             </tr>
@@ -292,21 +292,21 @@
   <input type="hidden" name="stamp_y" id="stampYInput" value="78">
   <input type="hidden" name="stamp_w" id="stampWInput" value="20">
 
-  <div class="card" style="margin-top:20px; padding:20px 24px; background:linear-gradient(135deg, rgba(5,150,105,0.06), rgba(37,99,235,0.06)); border:1px solid rgba(5,150,105,0.25);">
+  <div class="card" style="margin-top:20px; padding:20px 24px; background:linear-gradient(135deg, rgba(37,99,235,0.06), rgba(5,150,105,0.06)); border:1px solid rgba(37,99,235,0.25);">
     <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
       <div>
-        <h3 style="margin:0 0 4px; color:var(--success);">Ready to Submit for CTO Review &amp; Signature?</h3>
+        <h3 style="margin:0 0 4px; color:var(--primary);">Ready to Apply Signature, Stamp &amp; Date?</h3>
         <p class="muted" style="margin:0; font-size:0.88rem;">
-          Stamps Company Seal and inserts specified Date across all {{ files|length }} reports, then forwards directly to CTO queue.
+          Embeds the Signature, Company Seal, and statutory Date across all {{ files|length }} reports in a single, simple step.
         </p>
       </div>
       <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
-        <button type="submit" name="action" value="submit_for_approval" class="btn-primary btn-large" style="background:var(--success); border-color:#047857; padding:12px 24px; display:inline-flex; align-items:center; gap:8px;">
-          <span>Apply Seal &amp; Submit to CTO</span>
-          <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        <button type="submit" name="action" value="direct_process" class="btn-primary btn-large" style="background:var(--primary); padding:12px 28px; font-size:1.05rem; display:inline-flex; align-items:center; gap:8px;">
+          <span>Apply Signature &amp; Stamp</span>
+          <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="20 6 9 17 4 12"/></svg>
         </button>
-        <button type="submit" name="action" value="direct_process" class="btn-secondary btn-sm" title="Apply both seal and signature immediately in one step">
-          Direct Sign &amp; Stamp
+        <button type="submit" name="action" value="submit_for_approval" class="btn-secondary btn-sm" title="Submit to review queue">
+          Submit to Review Queue
         </button>
         <a href="/batch/new" class="btn-secondary btn-sm">Cancel</a>
       </div>

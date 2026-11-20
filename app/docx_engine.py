@@ -148,16 +148,20 @@ def _insert_signature_block(
     if target_p is not None:
         target_p.paragraph_format.space_before = Pt(2)
         target_p.paragraph_format.space_after = Pt(0)
+        target_p.paragraph_format.line_spacing = 1.0
+        target_p.paragraph_format.right_indent = None
         target_p.paragraph_format.keep_with_next = True
 
         # If there is a following paragraph (like Place / Date), ensure it stays compact and attached
         try:
             p_idx = doc.paragraphs.index(target_p)
-            for j in range(p_idx + 1, min(p_idx + 3, len(doc.paragraphs))):
+            for j in range(p_idx + 1, min(p_idx + 4, len(doc.paragraphs))):
                 sub_p = doc.paragraphs[j]
-                if any(k in sub_p.text.lower() for k in ["place", "date"]):
+                if any(k in sub_p.text.lower() for k in ["place", "date", "signatory"]):
                     sub_p.paragraph_format.space_before = Pt(1)
                     sub_p.paragraph_format.space_after = Pt(0)
+                    sub_p.paragraph_format.line_spacing = 1.0
+                    sub_p.paragraph_format.right_indent = None
                     sub_p.paragraph_format.keep_with_next = True
         except ValueError:
             pass
@@ -264,6 +268,151 @@ def _replace_dates(doc: Document, new_date: str, pattern: re.Pattern) -> int:
     return count
 
 
+def _detect_body_font(doc: Document) -> str:
+    """Detects the primary font used in the document body / Normal style."""
+    try:
+        norm_font = doc.styles["Normal"].font.name
+        if norm_font:
+            return norm_font
+    except Exception:
+        pass
+
+    for p in doc.paragraphs:
+        txt = p.text.lower()
+        if any(k in txt for k in ["whomsoever", "certify", "declare", "provisions", "faithfully"]):
+            for r in p.runs:
+                if r.font.name:
+                    return r.font.name
+
+    return "Palatino Linotype"
+
+
+def _harmonize_document_fonts(doc: Document) -> str:
+    """Ensures consistent font family across the entire document.
+    Fixes headers on top, middle section, closing 'Yours faithfully',
+    company name, and signatory lines to match the dominant document font.
+    """
+    body_font = _detect_body_font(doc)
+    if not body_font:
+        body_font = "Palatino Linotype"
+
+    try:
+        doc.styles["Normal"].font.name = body_font
+    except Exception:
+        pass
+
+    total_p = len(doc.paragraphs)
+    for i, p in enumerate(doc.paragraphs):
+        txt = p.text.strip()
+        if not txt:
+            continue
+        is_top = (i < 8)
+        is_closing = (i >= total_p - 12) or any(
+            k in txt.lower()
+            for k in [
+                "yours faithfully",
+                "for claaps",
+                "signatory",
+                "place:",
+                "date:",
+            ]
+        )
+
+        for r in p.runs:
+            if r.font.name and r.font.name != body_font:
+                r.font.name = body_font
+            elif is_top or is_closing:
+                r.font.name = body_font
+
+    for table in doc.tables:
+        for row in table.rows:
+            for cell in row.cells:
+                for p in cell.paragraphs:
+                    for r in p.runs:
+                        if r.font.name and r.font.name != body_font:
+                            r.font.name = body_font
+
+    for section in doc.sections:
+        for part in (section.header, section.footer):
+            for p in part.paragraphs:
+                for r in p.runs:
+                    if r.font.name and r.font.name != body_font:
+                        r.font.name = body_font
+
+    return body_font
+
+
+def _format_signatory_lines(doc: Document, body_font: str | None = None) -> None:
+    """Formats signatory lines so that 'Authorized Signatory', 'Place: Hyderabad',
+    and 'Date: ...' are kept in clean, separate single lines instead of being
+    wrapped or clustered into a narrow column."""
+    bf = body_font or _detect_body_font(doc)
+
+    for p in doc.paragraphs:
+        txt = p.text.strip()
+        if not txt:
+            continue
+
+        lower = txt.lower()
+        has_sig = bool(re.search(r"authori[sz]ed\s+signatory", lower))
+        has_place = bool(re.search(r"place\s*:", lower))
+        has_date = bool(re.search(r"date\s*[:.]?", lower))
+
+        if (has_sig and (has_place or has_date)) or (has_place and has_date) or has_sig:
+            sig_match = re.search(r"authori[sz]ed\s+signatory\.?", txt, re.I)
+            place_match = re.search(r"place\s*:\s*([^.\n\r]+?)(?=\s+date|\s*$)", txt, re.I)
+            date_match = re.search(r"date\s*[:.]?\s*(.+)$", txt, re.I)
+
+            parts = []
+            if sig_match:
+                parts.append("Authorized Signatory")
+            if place_match:
+                p_val = place_match.group(1).strip().rstrip(".,;")
+                parts.append(f"Place: {p_val}")
+            if date_match:
+                d_val = date_match.group(1).strip()
+                parts.append(f"Date: {d_val}")
+
+            if parts:
+                new_text = "\n".join(parts)
+                if p.runs:
+                    p.runs[0].text = new_text
+                    for extra in p.runs[1:]:
+                        extra.text = ""
+                    p.runs[0].font.name = bf
+                else:
+                    r = p.add_run(new_text)
+                    r.font.name = bf
+
+                p.paragraph_format.right_indent = None
+                p.paragraph_format.space_before = Pt(2)
+                p.paragraph_format.space_after = Pt(0)
+                p.paragraph_format.line_spacing = 1.0
+                p.paragraph_format.keep_with_next = True
+        elif has_place or has_date:
+            p.paragraph_format.right_indent = None
+            p.paragraph_format.space_before = Pt(1)
+            p.paragraph_format.space_after = Pt(0)
+            p.paragraph_format.line_spacing = 1.0
+            p.paragraph_format.keep_with_next = True
+            for r in p.runs:
+                if bf:
+                    r.font.name = bf
+
+
+def prepare_preview_docx(input_path: str, output_path: str) -> None:
+    """Prepares a clean copy of the docx file for PDF preview generation,
+    ensuring font harmonization and signatory line formatting are applied."""
+    doc = Document(input_path)
+    for p in doc.paragraphs:
+        if p.paragraph_format.space_after and p.paragraph_format.space_after.pt > 6:
+            p.paragraph_format.space_after = Pt(3)
+    bf = _harmonize_document_fonts(doc)
+    _format_signatory_lines(doc, bf)
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+    doc.save(output_path)
+
+
 def process_docx(
     input_path: str,
     output_path: str,
@@ -283,6 +432,12 @@ def process_docx(
             if p.paragraph_format.space_after and p.paragraph_format.space_after.pt > 6:
                 p.paragraph_format.space_after = Pt(3)
 
+        # Harmonize font families across entire document (top header, middle section, closing)
+        body_font = _harmonize_document_fonts(doc)
+
+        # Format signatory lines into separate single lines (Authorized Signatory / Place: / Date:)
+        _format_signatory_lines(doc, body_font)
+
         matched_label = "End of document"
         is_fallback = False
 
@@ -297,6 +452,10 @@ def process_docx(
         if new_date:
             pattern = compile_pattern(date_pattern)
             date_count = _replace_dates(doc, new_date, pattern)
+
+        # Final check to ensure signatory lines maintain proper formatting and fonts
+        _format_signatory_lines(doc, body_font)
+        _harmonize_document_fonts(doc)
 
         Path(output_path).parent.mkdir(parents=True, exist_ok=True)
         doc.save(output_path)

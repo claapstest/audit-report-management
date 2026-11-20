@@ -6,12 +6,13 @@ import re
 #   12/05/2026, 12-05-2026, 5 May 2026, May 5, 2026, May 5 2026
 DEFAULT_DATE_REGEX = re.compile(
     r"\b\d{1,2}[/-]\d{1,2}[/-]\d{2,4}\b"
-    r"|\b[A-Za-z]{3,9}\s+\d{1,2},?\s+\d{4}\b"
-    r"|\b\d{1,2}\s+[A-Za-z]{3,9}\s+\d{4}\b"
+    r"|\b[A-Za-z]{3,9}\s+\d{1,2}(?:st|nd|rd|th)?,?\s+\d{4}\b"
+    r"|\b\d{1,2}(?:st|nd|rd|th)?\s+[A-Za-z]{3,9}\s+\d{4}\b",
+    re.IGNORECASE,
 )
 
 LONG_DATE_REGEX = re.compile(
-    r"\b[A-Za-z]{3,9}\s+\d{1,2},?\s+\d{4}\b|\b\d{1,2}\s+[A-Za-z]{3,9}\s+\d{4}\b",
+    r"\b[A-Za-z]{3,9}\s+\d{1,2}(?:st|nd|rd|th)?,?\s+\d{4}\b|\b\d{1,2}(?:st|nd|rd|th)?\s+[A-Za-z]{3,9}\s+\d{4}\b",
     re.IGNORECASE,
 )
 

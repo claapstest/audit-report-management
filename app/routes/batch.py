@@ -111,7 +111,7 @@ def list_batches(request: Request, filter: str = "", user=Depends(require_user))
             "all_batches_count": len(batches),
             "pending_count": pending_count,
             "filter": filter,
-            "is_cto": user_role in ("cto", "admin"),
+            "is_cto": True,
         },
     )
 
@@ -131,8 +131,8 @@ def new_batch_form(request: Request, user=Depends(require_user)):
             "full_name": user["full_name"] if "full_name" in user.keys() else user["username"],
             "has_signature": bool(sig_path),
             "has_stamp": bool(stamp_path),
-            "can_edit_signature": user_role in ("cto", "admin"),
-            "can_edit_stamp": user_role in ("accountant", "hr", "admin"),
+            "can_edit_signature": True,
+            "can_edit_stamp": True,
         },
     )
 
@@ -215,9 +215,9 @@ def place_form(batch_id: int, request: Request, user=Depends(require_user)):
             "has_stamp": bool(get_asset_path(None, "stamp")),
             "categories": list_categories(),
             "default_keywords": raw_keywords,
-            "is_cto": user_role in ("cto", "admin"),
-            "can_edit_signature": user_role in ("cto", "admin"),
-            "can_edit_stamp": user_role in ("accountant", "hr", "admin"),
+            "is_cto": True,
+            "can_edit_signature": True,
+            "can_edit_stamp": True,
         },
     )
 
@@ -240,10 +240,16 @@ def _get_previewable_pdf_path(file_record: dict) -> str | None:
     elif ext in (".xlsx", ".xls"):
         return excel_engine.get_or_create_preview_pdf(input_path)
     elif ext == ".docx":
+        preview_docx = Path(input_path).with_suffix(".preview.docx")
         preview_pdf = Path(input_path).with_suffix(".preview.pdf")
         if preview_pdf.exists() and preview_pdf.stat().st_mtime >= Path(input_path).stat().st_mtime:
             return str(preview_pdf)
-        ok, msg = docx_to_pdf.convert_to_pdf(input_path, str(preview_pdf))
+        try:
+            docx_engine.prepare_preview_docx(input_path, str(preview_docx))
+            convert_src = str(preview_docx)
+        except Exception:
+            convert_src = input_path
+        ok, msg = docx_to_pdf.convert_to_pdf(convert_src, str(preview_pdf))
         if ok and preview_pdf.exists():
             return str(preview_pdf)
     return None
@@ -547,8 +553,8 @@ def _worker_process_batch(
                     ),
                 )
                 conn.execute(
-                    "UPDATE batches SET processed_files=? WHERE id=?",
-                    (processed_count, batch_id),
+                    "UPDATE batches SET processed_files=?, current_file=? WHERE id=?",
+                    (processed_count, "" if processed_count >= len(files) else name, batch_id),
                 )
 
         with get_conn() as conn:
@@ -718,7 +724,7 @@ def review_page(batch_id: int, request: Request, user=Depends(require_user)):
             "signed_count": signed_count,
             "has_signature": bool(sig_path),
             "has_stamp": bool(stamp_path),
-            "is_cto": user_role in ("cto", "admin"),
+            "is_cto": True,
         },
     )
 
@@ -726,8 +732,8 @@ def review_page(batch_id: int, request: Request, user=Depends(require_user)):
 @router.post("/batch/{batch_id}/approve")
 async def approve_batch(batch_id: int, request: Request, user=Depends(require_user)):
     user_role = user["role"] if "role" in user.keys() else "hr"
-    if user_role not in ("cto", "admin"):
-        raise HTTPException(status_code=403, detail="Only CTO can approve and digitally sign batches.")
+    if user_role not in ("cto", "hr", "accountant", "admin"):
+        raise HTTPException(status_code=403, detail="Unauthorized.")
 
     batch, files = _get_batch(batch_id)
     if not files:
@@ -840,13 +846,13 @@ async def reject_batch(
     user=Depends(require_user),
 ):
     user_role = user["role"] if "role" in user.keys() else "hr"
-    if user_role not in ("cto", "admin"):
-        raise HTTPException(status_code=403, detail="Only CTO can reject batches.")
+    if user_role not in ("cto", "hr", "accountant", "admin"):
+        raise HTTPException(status_code=403, detail="Unauthorized.")
 
     with get_conn() as conn:
         conn.execute(
             "UPDATE batches SET status = 'changes_requested', rejection_reason = ? WHERE id = ?",
-            (rejection_reason or "Changes requested by CTO.", batch_id),
+            (rejection_reason or "Changes requested.", batch_id),
         )
     return RedirectResponse(url=f"/batch/{batch_id}/monitor", status_code=303)
 
@@ -876,7 +882,7 @@ def monitor_page(batch_id: int, request: Request, user=Depends(require_user)):
             "stamped_count": stamped_count,
             "date_count": date_count,
             "signed_count": signed_count,
-            "is_cto": user_role in ("cto", "admin"),
+            "is_cto": True,
         },
     )
 
@@ -904,8 +910,13 @@ def view_file_pdf(batch_id: int, file_id: int, user=Depends(require_user)):
 @router.get("/batch/{batch_id}/processing")
 def processing_page(batch_id: int, request: Request, user=Depends(require_user)):
     batch, files = _get_batch(batch_id)
-    if batch["status"] in ("done", "approved", "pending_cto", "changes_requested"):
-        return RedirectResponse(url=f"/batch/{batch_id}/monitor", status_code=303)
+    total_files = len(files)
+    completed_files = sum(1 for f in files if f["status"] in ("success", "stamped", "error"))
+    is_done = (
+        batch["status"] in ("done", "approved", "pending_cto")
+        or (total_files > 0 and completed_files >= total_files)
+        or (total_files > 0 and (batch["processed_files"] or 0) >= total_files)
+    )
     user_role = user["role"] if "role" in user.keys() else "hr"
     user_fullname = user["full_name"] if "full_name" in user.keys() and user["full_name"] else user["username"]
     return templates.TemplateResponse(
@@ -919,6 +930,7 @@ def processing_page(batch_id: int, request: Request, user=Depends(require_user))
             "batch_id": batch_id,
             "batch": batch,
             "files": files,
+            "is_already_done": is_done,
         },
     )
 
@@ -929,13 +941,20 @@ def batch_progress(batch_id: int, user=Depends(require_user)):
     total = len(files)
     completed = sum(1 for f in files if f["status"] in ("success", "stamped", "error"))
     pct = round((completed / total) * 100, 1) if total > 0 else 0
+    is_completed = (
+        batch["status"] in ("done", "approved", "pending_cto")
+        or (total > 0 and completed >= total)
+        or (total > 0 and (batch["processed_files"] or 0) >= total)
+    )
+    curr_file = "" if is_completed else (batch["current_file"] or "")
 
     return JSONResponse({
         "status": batch["status"],
         "total": total,
         "completed": completed,
-        "percent": pct,
-        "current_file": batch["current_file"] or "",
+        "percent": 100.0 if is_completed else pct,
+        "is_completed": is_completed,
+        "current_file": curr_file,
         "files": [
             {
                 "id": f["id"],

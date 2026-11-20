@@ -12,14 +12,14 @@
   <!-- CTO Signature Card -->
   <div class="card">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-      <h2 style="margin:0;">CTO Signature</h2>
-      <span class="badge user-role-cto" style="font-size:0.75rem;">Managed by CTO</span>
+      <h2 style="margin:0;">Official Signature</h2>
+      <span class="badge user-role-cto" style="font-size:0.75rem;">All Accounts Access</span>
     </div>
     {% if has_signature %}
       <div class="asset-preview-box" style="background:#ffffff; border:1px solid var(--border-color, #cbd5e1); border-radius:8px; padding:12px; display:flex; align-items:center; justify-content:center; min-height:110px; overflow:hidden;">
-        <img src="/assets/preview/signature?t={{ range(1,99999) | random }}" alt="CTO Signature" style="max-height:90px; max-width:100%; object-fit:contain; display:block;">
+        <img src="/assets/preview/signature?t={{ range(1,99999) | random }}" alt="Signature" style="max-height:90px; max-width:100%; object-fit:contain; display:block;">
       </div>
-      <p class="muted" style="margin:8px 0 16px; font-size:0.88rem;">Current CTO signature loaded. Uploading a new file below will replace it.</p>
+      <p class="muted" style="margin:8px 0 16px; font-size:0.88rem;">Current official signature loaded. Uploading a new file below will replace it.</p>
       
       {% if can_edit_signature %}
       <form method="post" action="/assets/clean-transparent/signature" style="margin-bottom:16px;">
@@ -31,11 +31,10 @@
       {% endif %}
     {% else %}
       <div class="asset-preview-box empty-box">
-        <span class="muted">No CTO Signature uploaded yet</span>
+        <span class="muted">No Signature uploaded yet</span>
       </div>
     {% endif %}
 
-    {% if can_edit_signature %}
     <form method="post" action="/assets/signature" enctype="multipart/form-data" style="margin-top:16px;">
       <label for="sigFile">Select Signature Image (PNG / JPG):</label>
       <input type="file" id="sigFile" name="file" accept="image/png,image/jpeg" required>
@@ -46,22 +45,16 @@
       </div>
 
       <div style="margin-top:16px;">
-        <button type="submit" class="btn-primary">Save CTO Signature</button>
+        <button type="submit" class="btn-primary">Save Official Signature</button>
       </div>
     </form>
-    {% else %}
-    <div style="margin-top:16px; padding:12px; background:rgba(0,0,0,0.03); border-radius:6px; font-size:0.85rem; display:flex; align-items:center; gap:8px;" class="muted">
-      <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-      Only the CTO account can modify or upload the official CTO signature image.
-    </div>
-    {% endif %}
   </div>
 
   <!-- Company Seal Card -->
   <div class="card">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
       <h2 style="margin:0;">Company Seal / Stamp</h2>
-      <span class="badge user-role-accountant" style="font-size:0.75rem;">Managed by Accountant / HR</span>
+      <span class="badge user-role-accountant" style="font-size:0.75rem;">All Accounts Access</span>
     </div>
     {% if has_stamp %}
       <div class="asset-preview-box" style="background:#ffffff; border:1px solid var(--border-color, #cbd5e1); border-radius:8px; padding:12px; display:flex; align-items:center; justify-content:center; min-height:110px; overflow:hidden;">
@@ -83,7 +76,6 @@
       </div>
     {% endif %}
 
-    {% if can_edit_stamp %}
     <form method="post" action="/assets/stamp" enctype="multipart/form-data" style="margin-top:16px;">
       <label for="stampFile">Select Company Stamp Image (PNG / JPG):</label>
       <input type="file" id="stampFile" name="file" accept="image/png,image/jpeg" required>
@@ -97,12 +89,6 @@
         <button type="submit" class="btn-primary">Save Company Seal</button>
       </div>
     </form>
-    {% else %}
-    <div style="margin-top:16px; padding:12px; background:rgba(0,0,0,0.03); border-radius:6px; font-size:0.85rem; display:flex; align-items:center; gap:8px;" class="muted">
-      <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-      Only Accountant or HR accounts can modify or upload the official Company Seal.
-    </div>
-    {% endif %}
   </div>
 </div>
 

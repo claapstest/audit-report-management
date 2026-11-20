@@ -33,21 +33,7 @@ def get_asset_path(user_id: int | None, kind: str) -> str | None:
         if row and Path(row["file_path"]).exists():
             return row["file_path"]
 
-    # If signature, look for CTO-uploaded signature
-    if kind == "signature":
-        with get_conn() as conn:
-            cto_row = conn.execute(
-                """
-                SELECT a.file_path FROM assets a
-                JOIN users u ON u.id = a.user_id
-                WHERE u.role = 'cto' AND a.kind = 'signature'
-                ORDER BY a.updated_at DESC LIMIT 1
-                """
-            ).fetchone()
-        if cto_row and Path(cto_row["file_path"]).exists():
-            return cto_row["file_path"]
-
-    # Look for most recent company asset of this kind
+    # Look for most recent company asset of this kind across any user
     with get_conn() as conn:
         latest = conn.execute(
             "SELECT file_path FROM assets WHERE kind = ? ORDER BY updated_at DESC LIMIT 1",
@@ -125,8 +111,8 @@ def assets_page(request: Request, user=Depends(require_user)):
             "full_name": user["full_name"] if "full_name" in user.keys() else user["username"],
             "has_signature": bool(signature_path),
             "has_stamp": bool(stamp_path),
-            "can_edit_signature": user_role in ("cto", "admin"),
-            "can_edit_stamp": user_role in ("accountant", "hr", "admin"),
+            "can_edit_signature": True,
+            "can_edit_stamp": True,
         },
     )
 
