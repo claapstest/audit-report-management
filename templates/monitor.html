@@ -224,13 +224,27 @@
           {% endif %}
         </td>
         <td style="text-align:right; white-space:nowrap;">
-          <a class="btn-sm btn-secondary" href="/batch/{{ batch_id }}/view-pdf/{{ f.id }}" target="_blank" title="Preview PDF in tab" style="display:inline-flex; align-items:center; gap:4px;">
-            <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-            View
-          </a>
-          {% if batch.status in ['approved', 'done'] and f.status == 'success' %}
-          <a class="btn-sm btn-secondary" href="/batch/{{ batch_id }}/download-pdf/{{ f.id }}">PDF</a>
-          {% endif %}
+          <div style="display:inline-flex; gap:6px; align-items:center;">
+            <a class="btn-sm btn-secondary" href="/batch/{{ batch_id }}/view-pdf/{{ f.id }}" target="_blank" title="Preview document in new tab" style="display:inline-flex; align-items:center; gap:4px; padding:4px 9px;">
+              <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              <span>View</span>
+            </a>
+            {% if batch.status in ['approved', 'done'] and f.status == 'success' %}
+            {% set ext = f.original_name.split('.')[-1].lower() %}
+            {% if ext == 'docx' %}
+            <a class="btn-sm btn-secondary" href="/batch/{{ batch_id }}/download/{{ f.id }}" title="Download Word (.docx) document" style="display:inline-flex; align-items:center; gap:4px; padding:4px 9px;">
+              <span>Word</span>
+            </a>
+            {% elif ext in ['xlsx', 'xls'] %}
+            <a class="btn-sm btn-secondary" href="/batch/{{ batch_id }}/download/{{ f.id }}" title="Download Excel (.xlsx) document" style="display:inline-flex; align-items:center; gap:4px; padding:4px 9px;">
+              <span>Excel</span>
+            </a>
+            {% endif %}
+            <a class="btn-sm btn-primary" href="/batch/{{ batch_id }}/download-pdf/{{ f.id }}" title="Download converted PDF document" style="display:inline-flex; align-items:center; gap:4px; padding:4px 10px; background:var(--primary); border-color:var(--primary);">
+              <span>PDF</span>
+            </a>
+            {% endif %}
+          </div>
         </td>
       </tr>
       {% endfor %}

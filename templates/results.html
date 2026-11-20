@@ -31,16 +31,16 @@
 <!-- Download Actions Card -->
 <div class="card" style="padding:24px;">
   <h2>Download Stamped Files</h2>
-  <p class="muted">You can download the entire batch as a single ZIP archive, or download files individually from the table below.</p>
+  <p class="muted">You can download the entire batch as PDF or Word archives, or view and download files individually from the table below.</p>
   
   <div style="display:flex; gap:14px; flex-wrap:wrap; margin-top:16px;">
-    <a class="btn btn-primary btn-large" href="/batch/{{ batch_id }}/download-zip" style="display:inline-flex; align-items:center; gap:8px;">
-      <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
-      Download All as ZIP (Originals)
-    </a>
-    <a class="btn btn-secondary btn-large" href="/batch/{{ batch_id }}/download-zip-pdf" style="display:inline-flex; align-items:center; gap:8px;">
+    <a class="btn btn-primary btn-large" href="/batch/{{ batch_id }}/download-zip-pdf" style="display:inline-flex; align-items:center; gap:8px;">
       <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
       Download All as PDF (ZIP)
+    </a>
+    <a class="btn btn-secondary btn-large" href="/batch/{{ batch_id }}/download-zip" style="display:inline-flex; align-items:center; gap:8px;">
+      <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+      Download All as Word (ZIP)
     </a>
     <a class="btn btn-secondary" href="/batch/new" style="display:inline-flex; align-items:center; gap:6px;">
       <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -104,10 +104,33 @@
         </td>
         <td style="text-align:right; white-space:nowrap;">
           {% if f.status == 'success' %}
-          <a class="btn-sm btn-secondary" href="/batch/{{ batch_id }}/download/{{ f.id }}">Download</a>
-          {% if not f.original_name.lower().endswith('.pdf') %}
-          <a class="btn-sm btn-secondary" href="/batch/{{ batch_id }}/download-pdf/{{ f.id }}" title="Download as PDF">PDF</a>
-          {% endif %}
+          <div style="display:inline-flex; gap:6px; align-items:center;">
+            <!-- View / Preview Button -->
+            <button type="button" class="btn-sm btn-secondary open-preview-btn" data-doc-title="{{ f.original_name }}" data-preview-url="/batch/{{ batch_id }}/view-pdf/{{ f.id }}" data-download-pdf-url="/batch/{{ batch_id }}/download-pdf/{{ f.id }}" title="Preview processed document" style="display:inline-flex; align-items:center; gap:4px; padding:4px 9px;">
+              <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              <span>View</span>
+            </button>
+
+            <!-- Download Word / Excel Button -->
+            {% set ext = f.original_name.split('.')[-1].lower() %}
+            {% if ext == 'docx' %}
+            <a class="btn-sm btn-secondary" href="/batch/{{ batch_id }}/download/{{ f.id }}" title="Download Word (.docx) document" style="display:inline-flex; align-items:center; gap:4px; padding:4px 9px;">
+              <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+              <span>Word</span>
+            </a>
+            {% elif ext in ['xlsx', 'xls'] %}
+            <a class="btn-sm btn-secondary" href="/batch/{{ batch_id }}/download/{{ f.id }}" title="Download Excel (.xlsx) document" style="display:inline-flex; align-items:center; gap:4px; padding:4px 9px;">
+              <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              <span>Excel</span>
+            </a>
+            {% endif %}
+
+            <!-- Download PDF Button -->
+            <a class="btn-sm btn-primary" href="/batch/{{ batch_id }}/download-pdf/{{ f.id }}" title="Download converted PDF document" style="display:inline-flex; align-items:center; gap:4px; padding:4px 10px; background:var(--primary); border-color:var(--primary);">
+              <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              <span>PDF</span>
+            </a>
+          </div>
           {% endif %}
         </td>
       </tr>
@@ -116,13 +139,89 @@
   </table>
 </div>
 
+<!-- Document Preview Modal Dialog -->
+<div id="previewModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15,23,42,0.72); backdrop-filter:blur(3px); z-index:9999; align-items:center; justify-content:center; padding:16px;">
+  <div style="background:#ffffff; border-radius:12px; width:100%; max-width:980px; height:90vh; display:flex; flex-direction:column; box-shadow:0 24px 48px rgba(0,0,0,0.35); overflow:hidden;">
+    <div style="padding:14px 20px; border-bottom:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center; background:#f8fafc; gap:12px;">
+      <div style="display:flex; align-items:center; gap:10px; overflow:hidden;">
+        <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <strong id="modalDocTitle" style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-size:1.02rem; color:var(--text);">Document Preview</strong>
+      </div>
+      <div style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
+        <a id="modalNewTabBtn" href="#" target="_blank" class="btn-sm btn-secondary" style="display:inline-flex; align-items:center; gap:5px;" title="Open in new window">
+          <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          <span>Open in New Tab</span>
+        </a>
+        <a id="modalDownloadPdfBtn" href="#" class="btn-sm btn-primary" style="display:inline-flex; align-items:center; gap:5px;" title="Download PDF directly">
+          <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          <span>Download PDF</span>
+        </a>
+        <button type="button" id="closeModalBtn" class="btn-sm btn-secondary" style="font-weight:700; padding:4px 10px; font-size:1.2rem; line-height:1; cursor:pointer;" title="Close preview">&times;</button>
+      </div>
+    </div>
+    <div style="flex:1; background:#475569; position:relative;">
+      <iframe id="modalPreviewFrame" src="about:blank" style="width:100%; height:100%; border:none; display:block;"></iframe>
+    </div>
+  </div>
+</div>
+
 <script>
+  // Table search filter
   document.getElementById("resultFilter").addEventListener("input", function (e) {
     const q = e.target.value.toLowerCase().trim();
     document.querySelectorAll(".result-row").forEach(function (row) {
       const txt = row.textContent.toLowerCase();
       row.style.display = txt.includes(q) ? "" : "none";
     });
+  });
+
+  // Modal preview handling
+  const previewModal = document.getElementById("previewModal");
+  const modalDocTitle = document.getElementById("modalDocTitle");
+  const modalPreviewFrame = document.getElementById("modalPreviewFrame");
+  const modalNewTabBtn = document.getElementById("modalNewTabBtn");
+  const modalDownloadPdfBtn = document.getElementById("modalDownloadPdfBtn");
+  const closeModalBtn = document.getElementById("closeModalBtn");
+
+  function openModal(title, previewUrl, downloadUrl) {
+    modalDocTitle.textContent = title;
+    modalPreviewFrame.src = previewUrl;
+    modalNewTabBtn.href = previewUrl;
+    modalDownloadPdfBtn.href = downloadUrl;
+    previewModal.style.display = "flex";
+  }
+
+  function closeModal() {
+    previewModal.style.display = "none";
+    modalPreviewFrame.src = "about:blank";
+  }
+
+  document.querySelectorAll(".open-preview-btn").forEach(function (btn) {
+    btn.addEventListener("click", function (e) {
+      e.preventDefault();
+      const title = btn.getAttribute("data-doc-title");
+      const previewUrl = btn.getAttribute("data-preview-url");
+      const downloadUrl = btn.getAttribute("data-download-pdf-url");
+      openModal(title, previewUrl, downloadUrl);
+    });
+  });
+
+  if (closeModalBtn) {
+    closeModalBtn.addEventListener("click", closeModal);
+  }
+
+  if (previewModal) {
+    previewModal.addEventListener("click", function (e) {
+      if (e.target === previewModal) {
+        closeModal();
+      }
+    });
+  }
+
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && previewModal && previewModal.style.display === "flex") {
+      closeModal();
+    }
   });
 </script>
 {% endblock %}

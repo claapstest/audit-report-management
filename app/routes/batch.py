@@ -896,15 +896,20 @@ def view_file_pdf(batch_id: int, file_id: int, user=Depends(require_user)):
 
     pdf_path = match["pdf_output_path"]
     if not pdf_path or not Path(pdf_path).exists():
-        if match["output_path"] and match["output_path"].lower().endswith(".pdf") and Path(match["output_path"]).exists():
-            pdf_path = match["output_path"]
-        else:
+        try:
+            pdf_path = _ensure_pdf_path(match)
+        except Exception:
             pdf_path = _get_previewable_pdf_path(match)
 
     if not pdf_path or not Path(pdf_path).exists():
         raise HTTPException(status_code=404, detail="PDF preview not available for this file")
 
-    return FileResponse(pdf_path, media_type="application/pdf")
+    download_name = Path(match["original_name"]).with_suffix(".pdf").name
+    return FileResponse(
+        pdf_path,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f"inline; filename={download_name}"},
+    )
 
 
 @router.get("/batch/{batch_id}/processing")
