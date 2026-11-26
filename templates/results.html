@@ -3,13 +3,13 @@
 {% block content %}
 <div class="page-header">
   <div>
-    <h1>Batch #{{ batch_id }} Completed</h1>
-    <p class="muted">All audit documents have been signed and stamped with the CTO signature and Company Seal.</p>
+    <h1>Batch #{{ batch_id }} &bull; <span class="gradient-text">Completed</span></h1>
+    <p class="muted">All audit documents have been signed and stamped with the official CTO signature and Company Seal.</p>
   </div>
 </div>
 
 <!-- Summary Stat Cards -->
-<div class="stats-grid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:16px; margin-bottom:20px;">
+<div class="stats-grid">
   <div class="stat-card">
     <div class="stat-number">{{ files|length }}</div>
     <div class="stat-label">Total Files</div>
@@ -22,7 +22,7 @@
     <div class="stat-number">{{ detected_count }}</div>
     <div class="stat-label">Keyword Auto-Detected</div>
   </div>
-  <div class="stat-card stat-neutral">
+  <div class="stat-card">
     <div class="stat-number">{{ fallback_count }}</div>
     <div class="stat-label">Visual Fallback Used</div>
   </div>
@@ -31,9 +31,9 @@
 <!-- Download Actions Card -->
 <div class="card" style="padding:24px;">
   <h2>Download Stamped Files</h2>
-  <p class="muted">You can download the entire batch as PDF or Word archives, or view and download files individually from the table below.</p>
+  <p class="muted">Download the entire batch as PDF or Word archives, or view and download files individually from the table below.</p>
   
-  <div style="display:flex; gap:14px; flex-wrap:wrap; margin-top:16px;">
+  <div style="display:flex; gap:14px; flex-wrap:wrap; margin-top:18px;">
     <a class="btn btn-primary btn-large" href="/batch/{{ batch_id }}/download-zip-pdf" style="display:inline-flex; align-items:center; gap:8px;">
       <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
       Download All as PDF (ZIP)
@@ -49,103 +49,108 @@
   </div>
 </div>
 
-<!-- Itemized Results Table -->
+<!-- Itemized Results Table (Optimized for 150 Documents) -->
 <div class="card">
-  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:10px;">
-    <h2>Itemized Document Status</h2>
-    <input type="text" id="resultFilter" placeholder="Filter files..." style="max-width:240px; padding:6px 10px;">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:12px;">
+    <div>
+      <h2 style="margin:0;">Itemized Document Status</h2>
+      <p class="muted" style="margin:2px 0 0; font-size:0.86rem;" id="tableResultCount">Showing all {{ files|length }} documents</p>
+    </div>
+    <input type="text" id="resultFilter" placeholder="Filter 150 files by name..." style="max-width:280px; padding:8px 12px; font-size:0.88rem;">
   </div>
 
-  <table class="data-table" id="resultsTable">
-    <thead>
-      <tr>
-        <th>File Name</th>
-        <th>Category</th>
-        <th>Status</th>
-        <th>Details &amp; Placement</th>
-        <th style="text-align:right;">Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for f in files %}
-      <tr class="result-row">
-        <td>
-          <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-            <strong>{{ f.original_name }}</strong>
-            {% if f.has_existing_stamp %}
-            <span class="badge" style="background:#0284c7; color:#fff; font-size:0.75rem; font-weight:600; padding:2px 8px; border-radius:12px;">
-              Original Stamp Present
-            </span>
+  <div class="table-responsive">
+    <table class="data-table" id="resultsTable">
+      <thead>
+        <tr>
+          <th>File Name</th>
+          <th>Category</th>
+          <th>Status</th>
+          <th>Details &amp; Placement</th>
+          <th style="text-align:right;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for f in files %}
+        <tr class="result-row">
+          <td>
+            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+              <strong class="doc-file-name">{{ f.original_name }}</strong>
+              {% if f.has_existing_stamp %}
+              <span class="badge" style="background:#0284c7; color:#fff; font-size:0.74rem; font-weight:600; padding:2px 8px; border-radius:12px;">
+                Original Stamp Present
+              </span>
+              {% endif %}
+            </div>
+          </td>
+          <td>
+            {% if f.category_name %}
+            <span class="badge badge-neutral">{{ f.category_name }}</span>
+            {% else %}<span class="muted">&mdash;</span>{% endif %}
+          </td>
+          <td>
+            {% if f.status == 'success' %}
+            <span class="status-badge status-success"><span class="status-dot status-dot-success"></span> Success</span>
+            {% elif f.status == 'error' %}
+            <span class="status-badge status-error"><span class="status-dot status-dot-danger"></span> Error</span>
+            {% else %}
+            <span class="status-badge status-pending"><span class="status-dot status-dot-info"></span> {{ f.status }}</span>
             {% endif %}
-          </div>
-        </td>
-        <td>
-          {% if f.category_name %}
-          <span class="badge badge-neutral">{{ f.category_name }}</span>
-          {% else %}<span class="muted">&mdash;</span>{% endif %}
-        </td>
-        <td>
-          {% if f.status == 'success' %}
-          <span class="status-badge status-success"><span class="status-dot status-dot-success"></span> Success</span>
-          {% elif f.status == 'error' %}
-          <span class="status-badge status-error"><span class="status-dot status-dot-danger"></span> Error</span>
-          {% else %}
-          <span class="status-badge status-pending"><span class="status-dot status-dot-info"></span> {{ f.status }}</span>
-          {% endif %}
-        </td>
-        <td style="font-size:0.88rem;">
-          {% if f.detected_text and not f.is_fallback %}
-          <span style="color:var(--success); font-weight:500;">{{ f.message }}</span>
-          {% elif f.is_fallback %}
-          <span style="color:var(--primary);">{{ f.message }}</span>
-          {% else %}
-          <span class="muted">{{ f.message or 'Completed' }}</span>
-          {% endif %}
-        </td>
-        <td style="text-align:right; white-space:nowrap;">
-          {% if f.status == 'success' %}
-          <div style="display:inline-flex; gap:6px; align-items:center;">
-            <!-- View / Preview Button -->
-            <button type="button" class="btn-sm btn-secondary open-preview-btn" data-doc-title="{{ f.original_name }}" data-preview-url="/batch/{{ batch_id }}/view-pdf/{{ f.id }}" data-download-pdf-url="/batch/{{ batch_id }}/download-pdf/{{ f.id }}" title="Preview processed document" style="display:inline-flex; align-items:center; gap:4px; padding:4px 9px;">
-              <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-              <span>View</span>
-            </button>
-
-            <!-- Download Word / Excel Button -->
-            {% set ext = f.original_name.split('.')[-1].lower() %}
-            {% if ext == 'docx' %}
-            <a class="btn-sm btn-secondary" href="/batch/{{ batch_id }}/download/{{ f.id }}" title="Download Word (.docx) document" style="display:inline-flex; align-items:center; gap:4px; padding:4px 9px;">
-              <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-              <span>Word</span>
-            </a>
-            {% elif ext in ['xlsx', 'xls'] %}
-            <a class="btn-sm btn-secondary" href="/batch/{{ batch_id }}/download/{{ f.id }}" title="Download Excel (.xlsx) document" style="display:inline-flex; align-items:center; gap:4px; padding:4px 9px;">
-              <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-              <span>Excel</span>
-            </a>
+          </td>
+          <td style="font-size:0.88rem;">
+            {% if f.detected_text and not f.is_fallback %}
+            <span style="color:#34d399; font-weight:500;">{{ f.message }}</span>
+            {% elif f.is_fallback %}
+            <span style="color:#38bdf8;">{{ f.message }}</span>
+            {% else %}
+            <span class="muted">{{ f.message or 'Completed' }}</span>
             {% endif %}
+          </td>
+          <td style="text-align:right; white-space:nowrap;">
+            {% if f.status == 'success' %}
+            <div style="display:inline-flex; gap:6px; align-items:center;">
+              <!-- View / Preview Button -->
+              <button type="button" class="btn-sm btn-secondary open-preview-btn" data-doc-title="{{ f.original_name }}" data-preview-url="/batch/{{ batch_id }}/view-pdf/{{ f.id }}" data-download-pdf-url="/batch/{{ batch_id }}/download-pdf/{{ f.id }}" title="Preview processed document in high-res viewer" style="display:inline-flex; align-items:center; gap:4px; padding:5px 10px; background:rgba(37,99,235,0.22); border-color:#38bdf8; color:#ffffff;">
+                <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                <span>View</span>
+              </button>
 
-            <!-- Download PDF Button -->
-            <a class="btn-sm btn-primary" href="/batch/{{ batch_id }}/download-pdf/{{ f.id }}" title="Download converted PDF document" style="display:inline-flex; align-items:center; gap:4px; padding:4px 10px; background:var(--primary); border-color:var(--primary);">
-              <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-              <span>PDF</span>
-            </a>
-          </div>
-          {% endif %}
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+              <!-- Download Word / Excel Button -->
+              {% set ext = f.original_name.split('.')[-1].lower() %}
+              {% if ext == 'docx' %}
+              <a class="btn-sm btn-secondary" href="/batch/{{ batch_id }}/download/{{ f.id }}" title="Download Word (.docx) document" style="display:inline-flex; align-items:center; gap:4px; padding:5px 10px;">
+                <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                <span>Word</span>
+              </a>
+              {% elif ext in ['xlsx', 'xls'] %}
+              <a class="btn-sm btn-secondary" href="/batch/{{ batch_id }}/download/{{ f.id }}" title="Download Excel (.xlsx) document" style="display:inline-flex; align-items:center; gap:4px; padding:5px 10px;">
+                <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                <span>Excel</span>
+              </a>
+              {% endif %}
+
+              <!-- Download PDF Button -->
+              <a class="btn-sm btn-primary" href="/batch/{{ batch_id }}/download-pdf/{{ f.id }}" title="Download converted PDF document" style="display:inline-flex; align-items:center; gap:4px; padding:5px 11px;">
+                <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                <span>PDF</span>
+              </a>
+            </div>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </div>
 
-<!-- Document Preview Modal Dialog -->
-<div id="previewModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15,23,42,0.72); backdrop-filter:blur(3px); z-index:9999; align-items:center; justify-content:center; padding:16px;">
-  <div style="background:#ffffff; border-radius:12px; width:100%; max-width:980px; height:90vh; display:flex; flex-direction:column; box-shadow:0 24px 48px rgba(0,0,0,0.35); overflow:hidden;">
-    <div style="padding:14px 20px; border-bottom:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center; background:#f8fafc; gap:12px;">
+<!-- Document Preview Modal Dialog with Navy Dark Glass Styling -->
+<div id="previewModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(5,10,24,0.85); backdrop-filter:blur(6px); z-index:9999; align-items:center; justify-content:center; padding:16px;">
+  <div style="background:#0c1836; border:1px solid rgba(96,165,250,0.4); border-radius:14px; width:100%; max-width:1040px; height:90vh; display:flex; flex-direction:column; box-shadow:0 24px 60px rgba(0,0,0,0.85), 0 0 30px rgba(37,99,235,0.3); overflow:hidden;">
+    <div style="padding:14px 22px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; background:rgba(7,14,32,0.95); gap:12px;">
       <div style="display:flex; align-items:center; gap:10px; overflow:hidden;">
-        <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-        <strong id="modalDocTitle" style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-size:1.02rem; color:var(--text);">Document Preview</strong>
+        <svg class="icon-sm" style="color:#38bdf8;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <strong id="modalDocTitle" style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-size:1.05rem; color:#ffffff;">Document Preview</strong>
       </div>
       <div style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
         <a id="modalNewTabBtn" href="#" target="_blank" class="btn-sm btn-secondary" style="display:inline-flex; align-items:center; gap:5px;" title="Open in new window">
@@ -159,67 +164,90 @@
         <button type="button" id="closeModalBtn" class="btn-sm btn-secondary" style="font-weight:700; padding:4px 10px; font-size:1.2rem; line-height:1; cursor:pointer;" title="Close preview">&times;</button>
       </div>
     </div>
-    <div style="flex:1; background:#475569; position:relative;">
-      <iframe id="modalPreviewFrame" src="about:blank" style="width:100%; height:100%; border:none; display:block;"></iframe>
+    
+    <div style="flex:1; position:relative; background:#081124;">
+      <div id="previewLoader" style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); display:flex; flex-direction:column; align-items:center; gap:10px; color:#38bdf8;">
+        <svg class="icon-xl spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10" stroke-dasharray="32" stroke-linecap="round"/></svg>
+        <span style="font-weight:600; font-size:0.95rem;">Loading Document Preview...</span>
+      </div>
+      <iframe id="pdfPreviewIframe" src="" style="width:100%; height:100%; border:none; display:none;" onload="document.getElementById('previewLoader').style.display='none'; this.style.display='block';"></iframe>
     </div>
   </div>
 </div>
 
 <script>
-  // Table search filter
-  document.getElementById("resultFilter").addEventListener("input", function (e) {
-    const q = e.target.value.toLowerCase().trim();
-    document.querySelectorAll(".result-row").forEach(function (row) {
-      const txt = row.textContent.toLowerCase();
-      row.style.display = txt.includes(q) ? "" : "none";
-    });
-  });
+  // Filter for 150 items
+  const filterInput = document.getElementById("resultFilter");
+  const table = document.getElementById("resultsTable");
+  const countNotice = document.getElementById("tableResultCount");
+  const totalCount = {{ files|length }};
 
-  // Modal preview handling
-  const previewModal = document.getElementById("previewModal");
-  const modalDocTitle = document.getElementById("modalDocTitle");
-  const modalPreviewFrame = document.getElementById("modalPreviewFrame");
-  const modalNewTabBtn = document.getElementById("modalNewTabBtn");
-  const modalDownloadPdfBtn = document.getElementById("modalDownloadPdfBtn");
-  const closeModalBtn = document.getElementById("closeModalBtn");
-
-  function openModal(title, previewUrl, downloadUrl) {
-    modalDocTitle.textContent = title;
-    modalPreviewFrame.src = previewUrl;
-    modalNewTabBtn.href = previewUrl;
-    modalDownloadPdfBtn.href = downloadUrl;
-    previewModal.style.display = "flex";
-  }
-
-  function closeModal() {
-    previewModal.style.display = "none";
-    modalPreviewFrame.src = "about:blank";
-  }
-
-  document.querySelectorAll(".open-preview-btn").forEach(function (btn) {
-    btn.addEventListener("click", function (e) {
-      e.preventDefault();
-      const title = btn.getAttribute("data-doc-title");
-      const previewUrl = btn.getAttribute("data-preview-url");
-      const downloadUrl = btn.getAttribute("data-download-pdf-url");
-      openModal(title, previewUrl, downloadUrl);
-    });
-  });
-
-  if (closeModalBtn) {
-    closeModalBtn.addEventListener("click", closeModal);
-  }
-
-  if (previewModal) {
-    previewModal.addEventListener("click", function (e) {
-      if (e.target === previewModal) {
-        closeModal();
+  if (filterInput && table) {
+    filterInput.addEventListener("input", function () {
+      const q = this.value.toLowerCase().trim();
+      let visible = 0;
+      table.querySelectorAll(".result-row").forEach(row => {
+        const nameEl = row.querySelector(".doc-file-name");
+        if (!nameEl) return;
+        const txt = nameEl.textContent.toLowerCase();
+        if (!q || txt.includes(q)) {
+          row.style.display = "";
+          visible++;
+        } else {
+          row.style.display = "none";
+        }
+      });
+      if (countNotice) {
+        countNotice.textContent = q ? `Showing ${visible} of ${totalCount} documents` : `Showing all ${totalCount} documents`;
       }
     });
   }
 
+  // Preview Modal Handling
+  const modal = document.getElementById("previewModal");
+  const iframe = document.getElementById("pdfPreviewIframe");
+  const loader = document.getElementById("previewLoader");
+  const modalTitle = document.getElementById("modalDocTitle");
+  const modalNewTabBtn = document.getElementById("modalNewTabBtn");
+  const modalDownloadPdfBtn = document.getElementById("modalDownloadPdfBtn");
+  const closeModalBtn = document.getElementById("closeModalBtn");
+
+  function openModal(title, previewUrl, downloadPdfUrl) {
+    modalTitle.textContent = title || "Document Preview";
+    modalNewTabBtn.href = previewUrl;
+    modalDownloadPdfBtn.href = downloadPdfUrl;
+    
+    loader.style.display = "flex";
+    iframe.style.display = "none";
+    iframe.src = previewUrl;
+    
+    modal.style.display = "flex";
+    document.body.style.overflow = "hidden";
+  }
+
+  function closeModal() {
+    modal.style.display = "none";
+    iframe.src = "";
+    document.body.style.overflow = "";
+  }
+
+  document.querySelectorAll(".open-preview-btn").forEach(btn => {
+    btn.addEventListener("click", function () {
+      const title = this.dataset.docTitle;
+      const previewUrl = this.dataset.previewUrl;
+      const downloadPdfUrl = this.dataset.downloadPdfUrl;
+      openModal(title, previewUrl, downloadPdfUrl);
+    });
+  });
+
+  if (closeModalBtn) closeModalBtn.addEventListener("click", closeModal);
+  if (modal) {
+    modal.addEventListener("click", function (e) {
+      if (e.target === modal) closeModal();
+    });
+  }
   document.addEventListener("keydown", function (e) {
-    if (e.key === "Escape" && previewModal && previewModal.style.display === "flex") {
+    if (e.key === "Escape" && modal.style.display === "flex") {
       closeModal();
     }
   });

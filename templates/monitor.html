@@ -7,12 +7,12 @@
       <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
       Statutory Compliance Monitor
     </span>
-    <h1 style="margin-top:6px;">Audit Compliance Board &bull; Batch #{{ batch_id }}</h1>
-    <p class="muted">Live monitoring to ensure all {{ total_files }} audit documents are Signed, Stamped, and have the correct Date inserted.</p>
+    <h1 style="margin-top:6px;">Audit Compliance Board &bull; <span class="gradient-text">Batch #{{ batch_id }}</span></h1>
+    <p class="muted">Live monitoring to ensure all {{ total_files }} audit documents are Signed, Stamped, and have the statutory Date inserted.</p>
   </div>
   <div style="display:flex; gap:10px; flex-wrap:wrap;">
     {% if is_cto and batch.status == 'pending_cto' %}
-    <a href="/batch/{{ batch_id }}/review" class="btn btn-primary" style="background:var(--success); border-color:#047857; display:inline-flex; align-items:center; gap:6px;">
+    <a href="/batch/{{ batch_id }}/review" class="btn btn-primary" style="display:inline-flex; align-items:center; gap:6px;">
       <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
       Open Review &amp; Sign
     </a>
@@ -28,7 +28,7 @@
       <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
     </div>
     <div>
-      <div style="font-weight:700; font-size:0.92rem;">1. Batch Uploaded</div>
+      <div style="font-weight:700; font-size:0.92rem; color:#ffffff;">1. Batch Uploaded</div>
       <div class="muted" style="font-size:0.78rem;">By {{ batch.submitted_by_fullname or batch.submitted_by_username or 'Accountant' }}</div>
     </div>
   </div>
@@ -40,7 +40,7 @@
       {% else %}2{% endif %}
     </div>
     <div>
-      <div style="font-weight:700; font-size:0.92rem;">2. Date &amp; Stamp Inserted</div>
+      <div style="font-weight:700; font-size:0.92rem; color:#ffffff;">2. Date &amp; Stamp Inserted</div>
       <div class="muted" style="font-size:0.78rem;">{{ stamped_count }} / {{ total_files }} Stamped</div>
     </div>
   </div>
@@ -52,7 +52,7 @@
       {% else %}3{% endif %}
     </div>
     <div>
-      <div style="font-weight:700; font-size:0.92rem;">3. CTO Digital Signature</div>
+      <div style="font-weight:700; font-size:0.92rem; color:#ffffff;">3. CTO Digital Signature</div>
       <div class="muted" style="font-size:0.78rem;">
         {% if signed_count == total_files and total_files > 0 %}Approved &amp; Signed by CTO
         {% elif batch.status == 'pending_cto' %}Awaiting CTO Sign-off
@@ -63,7 +63,7 @@
 </div>
 
 <!-- 4 Key Compliance Metrics Cards -->
-<div class="stats-grid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(210px, 1fr)); gap:16px; margin-bottom:20px;">
+<div class="stats-grid">
   <div class="stat-card">
     <div class="stat-number">{{ total_files }}</div>
     <div class="stat-label">Total Audit Documents</div>
@@ -72,7 +72,7 @@
   <div class="stat-card stat-success">
     <div class="stat-number">
       {{ date_count }} / {{ total_files }}
-      <span style="font-size:0.85rem; font-weight:600; color:var(--success); margin-left:6px;">Verified</span>
+      <span style="font-size:0.85rem; font-weight:600; color:#34d399; margin-left:6px;">Verified</span>
     </div>
     <div class="stat-label">Statutory Date Inserted ({{ batch.new_date or 'Auto' }})</div>
   </div>
@@ -80,7 +80,7 @@
   <div class="stat-card stat-success">
     <div class="stat-number">
       {{ stamped_count }} / {{ total_files }}
-      <span style="font-size:0.85rem; font-weight:600; color:var(--success); margin-left:6px;">Stamped</span>
+      <span style="font-size:0.85rem; font-weight:600; color:#34d399; margin-left:6px;">Stamped</span>
     </div>
     <div class="stat-label">Company Seal Affixed</div>
   </div>
@@ -89,9 +89,9 @@
     <div class="stat-number">
       {% if signed_count == total_files and total_files > 0 %}
         {{ signed_count }} / {{ total_files }}
-        <span style="font-size:0.85rem; font-weight:600; color:var(--success); margin-left:6px;">Signed</span>
+        <span style="font-size:0.85rem; font-weight:600; color:#34d399; margin-left:6px;">Signed</span>
       {% else %}
-        <span style="color:var(--warning); font-size:1.3rem;">Pending CTO</span>
+        <span style="color:#fbbf24; font-size:1.3rem;">Pending CTO</span>
       {% endif %}
     </div>
     <div class="stat-label">CTO Digital Signature</div>
@@ -100,16 +100,16 @@
 
 <!-- Action Card based on Status -->
 {% if batch.status == 'pending_cto' %}
-<div class="card" style="background:rgba(217, 119, 6, 0.08); border-left:4px solid var(--warning); padding:18px 24px; margin-bottom:20px;">
+<div class="card" style="background:rgba(245, 158, 11, 0.12); border-left:4px solid #f59e0b; padding:18px 24px; margin-bottom:20px;">
   <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px;">
     <div>
-      <h3 style="margin:0 0 4px; color:var(--warning);">Batch Awaiting CTO Review &amp; Signature</h3>
+      <h3 style="margin:0 0 4px; color:#fbbf24;">Batch Awaiting CTO Review &amp; Signature</h3>
       <p class="muted" style="margin:0; font-size:0.92rem;">
         Company Seal and Statutory Date have been applied. CTO must review and authorize the digital signature.
       </p>
     </div>
     {% if is_cto %}
-    <a href="/batch/{{ batch_id }}/review" class="btn btn-primary" style="background:var(--success); border-color:#047857; padding:10px 20px; display:inline-flex; align-items:center; gap:6px;">
+    <a href="/batch/{{ batch_id }}/review" class="btn btn-primary" style="padding:10px 20px; display:inline-flex; align-items:center; gap:6px;">
       <span>Review &amp; Authorize CTO Signature</span>
       <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
     </a>
@@ -119,10 +119,10 @@
   </div>
 </div>
 {% elif batch.status in ['approved', 'done'] %}
-<div class="card" style="background:rgba(5, 150, 105, 0.08); border-left:4px solid var(--success); padding:20px 24px; margin-bottom:20px;">
+<div class="card" style="background:rgba(16, 185, 129, 0.12); border-left:4px solid #10b981; padding:20px 24px; margin-bottom:20px;">
   <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px;">
     <div>
-      <h3 style="margin:0 0 4px; color:var(--success);">100% Audit Ready &bull; Fully Signed &amp; Stamped</h3>
+      <h3 style="margin:0 0 4px; color:#34d399;">100% Audit Ready &bull; Fully Signed &amp; Stamped</h3>
       <p class="muted" style="margin:0; font-size:0.92rem;">
         All documents have verified Date, Company Seal Stamp, and official CTO Digital Signature applied. Approved by {{ batch.approved_by_fullname or batch.approved_by_username or 'CTO' }} on {{ batch.approved_at }}.
       </p>
@@ -140,8 +140,8 @@
   </div>
 </div>
 {% elif batch.status == 'changes_requested' %}
-<div class="card" style="background:rgba(220, 38, 38, 0.08); border-left:4px solid var(--danger); padding:18px 24px; margin-bottom:20px;">
-  <h3 style="margin:0 0 6px; color:var(--danger);">Revisions Requested by CTO</h3>
+<div class="card" style="background:rgba(239, 68, 68, 0.12); border-left:4px solid #ef4444; padding:18px 24px; margin-bottom:20px;">
+  <h3 style="margin:0 0 6px; color:#f87171;">Revisions Requested by CTO</h3>
   <p style="margin:0 0 12px; font-size:0.95rem;"><strong>Notes:</strong> {{ batch.rejection_reason }}</p>
   <a href="/batch/{{ batch_id }}/place" class="btn btn-primary btn-sm">Update Settings &amp; Resubmit</a>
 </div>
@@ -152,112 +152,210 @@
   <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:10px;">
     <div>
       <h2 style="margin:0;">Itemized Statutory Checklist</h2>
-      <p class="muted" style="margin:2px 0 0; font-size:0.85rem;">Verification status of Date, Stamp, and Signature for every file.</p>
+      <p class="muted" style="margin:2px 0 0; font-size:0.85rem;" id="checklistCountNotice">Verification status of Date, Stamp, and Signature for all {{ total_files }} files.</p>
     </div>
-    <input type="text" id="checklistSearch" placeholder="Search document name..." style="max-width:260px; padding:6px 12px; font-size:0.88rem;">
+    <input type="text" id="checklistSearch" placeholder="Search 150 docs in checklist..." style="max-width:280px; padding:8px 12px; font-size:0.88rem;">
   </div>
 
-  <table class="data-table" id="complianceTable">
-    <thead>
-      <tr>
-        <th>Document Name</th>
-        <th>Statutory Category</th>
-        <th style="text-align:center;">Date Inserted</th>
-        <th style="text-align:center;">Company Stamp</th>
-        <th style="text-align:center;">CTO Signature</th>
-        <th>Status</th>
-        <th style="text-align:right;">Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for f in files %}
-      <tr class="checklist-row">
-        <td>
-          <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-            <strong>{{ f.original_name }}</strong>
-            {% if f.has_existing_stamp %}
-            <span class="badge" style="background:#0284c7; color:#fff; font-size:0.75rem; font-weight:600; padding:2px 8px; border-radius:12px;">
-              Original Stamp Present
-            </span>
+  <div class="table-responsive">
+    <table class="data-table" id="complianceTable">
+      <thead>
+        <tr>
+          <th>Document Name</th>
+          <th>Category</th>
+          <th>Statutory Date</th>
+          <th>Company Seal</th>
+          <th>CTO Signature</th>
+          <th style="text-align:right;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for f in files %}
+        <tr class="checklist-row">
+          <td>
+            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+              <strong class="checklist-doc-name">{{ f.original_name }}</strong>
+              {% if f.has_existing_stamp %}
+              <span class="badge" style="background:#0284c7; color:#fff; font-size:0.74rem; font-weight:600; padding:2px 8px; border-radius:12px;">
+                Original Stamp Present
+              </span>
+              {% endif %}
+            </div>
+          </td>
+          <td>
+            {% if f.category_name %}
+            <span class="badge badge-neutral">{{ f.category_name }}</span>
+            {% else %}<span class="muted">&mdash;</span>{% endif %}
+          </td>
+          <td>
+            {% if f.has_date %}
+            <span class="status-badge status-success"><span class="status-dot status-dot-success"></span> {{ f.inserted_date or batch.new_date or 'Verified' }}</span>
+            {% else %}
+            <span class="status-badge status-pending"><span class="status-dot status-dot-muted"></span> Unchanged</span>
             {% endif %}
-          </div>
-        </td>
-        <td>
-          {% if f.category_name %}
-          <span class="badge badge-neutral">{{ f.category_name }}</span>
-          {% else %}<span class="muted">&mdash;</span>{% endif %}
-        </td>
-        <td style="text-align:center;">
-          {% if f.category_needs_date == 0 %}
-          <span class="badge badge-neutral" style="font-size:0.75rem;">N/A (Exempt)</span>
-          {% elif f.has_date or batch.new_date %}
-          <span style="color:var(--success); font-weight:600;">{{ batch.new_date or 'Set' }}</span>
-          {% else %}
-          <span class="muted">&mdash;</span>
-          {% endif %}
-        </td>
-        <td style="text-align:center;">
-          {% if f.has_existing_stamp %}
-          <span style="color:#0284c7; font-weight:600;">Original Stamp</span>
-          {% elif f.has_stamp or f.status in ['stamped', 'success'] %}
-          <span style="color:var(--success); font-weight:600;">Stamped</span>
-          {% else %}
-          <span style="color:var(--warning); font-weight:600;">Pending</span>
-          {% endif %}
-        </td>
-        <td style="text-align:center;">
-          {% if f.has_signature or batch.status in ['approved', 'done'] %}
-          <span style="color:var(--primary); font-weight:700;">Signed</span>
-          {% else %}
-          <span style="color:var(--warning); font-size:0.85rem; font-weight:600;">Awaiting CTO</span>
-          {% endif %}
-        </td>
-        <td>
-          {% if batch.status in ['approved', 'done'] %}
-          <span class="status-badge status-success"><span class="status-dot status-dot-success"></span> Audit Ready</span>
-          {% elif batch.status == 'pending_cto' %}
-          <span class="status-badge status-pending-cto"><span class="status-dot status-dot-warning"></span> Pending CTO</span>
-          {% elif batch.status == 'changes_requested' %}
-          <span class="status-badge status-changes"><span class="status-dot status-dot-danger"></span> Revise</span>
-          {% else %}
-          <span class="status-badge status-pending"><span class="status-dot status-dot-info"></span> {{ batch.status }}</span>
-          {% endif %}
-        </td>
-        <td style="text-align:right; white-space:nowrap;">
-          <div style="display:inline-flex; gap:6px; align-items:center;">
-            <a class="btn-sm btn-secondary" href="/batch/{{ batch_id }}/view-pdf/{{ f.id }}" target="_blank" title="Preview document in new tab" style="display:inline-flex; align-items:center; gap:4px; padding:4px 9px;">
-              <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-              <span>View</span>
-            </a>
-            {% if batch.status in ['approved', 'done'] and f.status == 'success' %}
-            {% set ext = f.original_name.split('.')[-1].lower() %}
-            {% if ext == 'docx' %}
-            <a class="btn-sm btn-secondary" href="/batch/{{ batch_id }}/download/{{ f.id }}" title="Download Word (.docx) document" style="display:inline-flex; align-items:center; gap:4px; padding:4px 9px;">
-              <span>Word</span>
-            </a>
-            {% elif ext in ['xlsx', 'xls'] %}
-            <a class="btn-sm btn-secondary" href="/batch/{{ batch_id }}/download/{{ f.id }}" title="Download Excel (.xlsx) document" style="display:inline-flex; align-items:center; gap:4px; padding:4px 9px;">
-              <span>Excel</span>
-            </a>
+          </td>
+          <td>
+            {% if f.has_stamp %}
+            <span class="status-badge status-success"><span class="status-dot status-dot-success"></span> Stamped</span>
+            {% elif f.has_existing_stamp %}
+            <span class="status-badge status-success" title="Original stamp preserved"><span class="status-dot status-dot-success"></span> Preserved</span>
+            {% else %}
+            <span class="status-badge status-pending"><span class="status-dot status-dot-muted"></span> Skipped</span>
             {% endif %}
-            <a class="btn-sm btn-primary" href="/batch/{{ batch_id }}/download-pdf/{{ f.id }}" title="Download converted PDF document" style="display:inline-flex; align-items:center; gap:4px; padding:4px 10px; background:var(--primary); border-color:var(--primary);">
-              <span>PDF</span>
-            </a>
+          </td>
+          <td>
+            {% if f.has_signature %}
+            <span class="status-badge status-success"><span class="status-dot status-dot-success"></span> Signed</span>
+            {% elif batch.status == 'pending_cto' %}
+            <span class="status-badge status-pending-cto"><span class="status-dot status-dot-warning"></span> Pending Sign-off</span>
+            {% else %}
+            <span class="status-badge status-pending"><span class="status-dot status-dot-muted"></span> Pending</span>
             {% endif %}
-          </div>
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+          </td>
+          <td style="text-align:right; white-space:nowrap;">
+            {% if f.status == 'success' or f.output_path %}
+            <div style="display:inline-flex; gap:6px; align-items:center;">
+              <!-- View / Preview Button -->
+              <button type="button" class="btn-sm btn-secondary open-preview-btn" data-doc-title="{{ f.original_name }}" data-preview-url="/batch/{{ batch_id }}/view-pdf/{{ f.id }}" data-download-pdf-url="/batch/{{ batch_id }}/download-pdf/{{ f.id }}" title="Preview processed document in high-res viewer" style="display:inline-flex; align-items:center; gap:4px; padding:5px 10px; background:rgba(37,99,235,0.22); border-color:#38bdf8; color:#ffffff;">
+                <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                <span>View</span>
+              </button>
+
+              <!-- Download Word / Excel Button -->
+              {% set ext = f.original_name.split('.')[-1].lower() %}
+              {% if ext == 'docx' %}
+              <a class="btn-sm btn-secondary" href="/batch/{{ batch_id }}/download/{{ f.id }}" title="Download Word (.docx) document" style="display:inline-flex; align-items:center; gap:4px; padding:5px 10px;">
+                <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                <span>Word</span>
+              </a>
+              {% elif ext in ['xlsx', 'xls'] %}
+              <a class="btn-sm btn-secondary" href="/batch/{{ batch_id }}/download/{{ f.id }}" title="Download Excel (.xlsx) document" style="display:inline-flex; align-items:center; gap:4px; padding:5px 10px;">
+                <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                <span>Excel</span>
+              </a>
+              {% endif %}
+
+              <!-- Download PDF Button -->
+              <a class="btn-sm btn-primary" href="/batch/{{ batch_id }}/download-pdf/{{ f.id }}" title="Download converted PDF document" style="display:inline-flex; align-items:center; gap:4px; padding:5px 11px;">
+                <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                <span>PDF</span>
+              </a>
+            </div>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Document Preview Modal Dialog -->
+<div id="previewModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(5,10,24,0.85); backdrop-filter:blur(6px); z-index:9999; align-items:center; justify-content:center; padding:16px;">
+  <div style="background:#0c1836; border:1px solid rgba(96,165,250,0.4); border-radius:14px; width:100%; max-width:1040px; height:90vh; display:flex; flex-direction:column; box-shadow:0 24px 60px rgba(0,0,0,0.85), 0 0 30px rgba(37,99,235,0.3); overflow:hidden;">
+    <div style="padding:14px 22px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; background:rgba(7,14,32,0.95); gap:12px;">
+      <div style="display:flex; align-items:center; gap:10px; overflow:hidden;">
+        <svg class="icon-sm" style="color:#38bdf8;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <strong id="modalDocTitle" style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-size:1.05rem; color:#ffffff;">Document Preview</strong>
+      </div>
+      <div style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
+        <a id="modalNewTabBtn" href="#" target="_blank" class="btn-sm btn-secondary" style="display:inline-flex; align-items:center; gap:5px;" title="Open in new window">
+          <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          <span>Open in New Tab</span>
+        </a>
+        <a id="modalDownloadPdfBtn" href="#" class="btn-sm btn-primary" style="display:inline-flex; align-items:center; gap:5px;" title="Download PDF directly">
+          <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          <span>Download PDF</span>
+        </a>
+        <button type="button" id="closeModalBtn" class="btn-sm btn-secondary" style="font-weight:700; padding:4px 10px; font-size:1.2rem; line-height:1; cursor:pointer;" title="Close preview">&times;</button>
+      </div>
+    </div>
+    
+    <div style="flex:1; position:relative; background:#081124;">
+      <div id="previewLoader" style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); display:flex; flex-direction:column; align-items:center; gap:10px; color:#38bdf8;">
+        <svg class="icon-xl spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10" stroke-dasharray="32" stroke-linecap="round"/></svg>
+        <span style="font-weight:600; font-size:0.95rem;">Loading Document Preview...</span>
+      </div>
+      <iframe id="pdfPreviewIframe" src="" style="width:100%; height:100%; border:none; display:none;" onload="document.getElementById('previewLoader').style.display='none'; this.style.display='block';"></iframe>
+    </div>
+  </div>
 </div>
 
 <script>
-  document.getElementById('checklistSearch').addEventListener('input', function() {
-    var q = this.value.toLowerCase();
-    document.querySelectorAll('#complianceTable tbody tr').forEach(function(row) {
-      row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
+  // Search filter for 150 documents
+  const checklistSearch = document.getElementById("checklistSearch");
+  const compTable = document.getElementById("complianceTable");
+  const countNotice = document.getElementById("checklistCountNotice");
+  const totalCount = {{ total_files }};
+
+  if (checklistSearch && compTable) {
+    checklistSearch.addEventListener("input", function () {
+      const q = this.value.toLowerCase().trim();
+      let visible = 0;
+      compTable.querySelectorAll(".checklist-row").forEach(row => {
+        const nameEl = row.querySelector(".checklist-doc-name");
+        if (!nameEl) return;
+        const txt = nameEl.textContent.toLowerCase();
+        if (!q || txt.includes(q)) {
+          row.style.display = "";
+          visible++;
+        } else {
+          row.style.display = "none";
+        }
+      });
+      if (countNotice) {
+        countNotice.textContent = q ? `Showing ${visible} of ${totalCount} documents` : `Verification status of Date, Stamp, and Signature for all ${totalCount} files.`;
+      }
     });
+  }
+
+  // Preview Modal Handling
+  const modal = document.getElementById("previewModal");
+  const iframe = document.getElementById("pdfPreviewIframe");
+  const loader = document.getElementById("previewLoader");
+  const modalTitle = document.getElementById("modalDocTitle");
+  const modalNewTabBtn = document.getElementById("modalNewTabBtn");
+  const modalDownloadPdfBtn = document.getElementById("modalDownloadPdfBtn");
+  const closeModalBtn = document.getElementById("closeModalBtn");
+
+  function openModal(title, previewUrl, downloadPdfUrl) {
+    modalTitle.textContent = title || "Document Preview";
+    modalNewTabBtn.href = previewUrl;
+    modalDownloadPdfBtn.href = downloadPdfUrl;
+    
+    loader.style.display = "flex";
+    iframe.style.display = "none";
+    iframe.src = previewUrl;
+    
+    modal.style.display = "flex";
+    document.body.style.overflow = "hidden";
+  }
+
+  function closeModal() {
+    modal.style.display = "none";
+    iframe.src = "";
+    document.body.style.overflow = "";
+  }
+
+  document.querySelectorAll(".open-preview-btn").forEach(btn => {
+    btn.addEventListener("click", function () {
+      const title = this.dataset.docTitle;
+      const previewUrl = this.dataset.previewUrl;
+      const downloadPdfUrl = this.dataset.downloadPdfUrl;
+      openModal(title, previewUrl, downloadPdfUrl);
+    });
+  });
+
+  if (closeModalBtn) closeModalBtn.addEventListener("click", closeModal);
+  if (modal) {
+    modal.addEventListener("click", function (e) {
+      if (e.target === modal) closeModal();
+    });
+  }
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && modal.style.display === "flex") {
+      closeModal();
+    }
   });
 </script>
 {% endblock %}

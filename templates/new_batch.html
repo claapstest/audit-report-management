@@ -3,34 +3,34 @@
 {% block content %}
 <div class="page-header">
   <div>
-    <h1>ARS &bull; Audit Report Stamping Portal</h1>
-    <p class="muted">Upload your monthly statutory compliance reports (PDF, Word .docx, or Excel .xlsx/.xls) and apply the official CTO signature and Company Seal in batch.</p>
+    <h1>ARS &bull; <span class="gradient-text">Audit Report Stamping Portal</span></h1>
+    <p class="muted">Upload your monthly statutory compliance reports (PDF, Word .docx, or Excel .xlsx/.xls) and apply the official CTO signature and Company Seal in bulk.</p>
   </div>
 </div>
 
 <!-- Dashboard Active Assets Section -->
-<div class="card" style="margin-bottom:20px;">
-  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:10px;">
+<div class="card" style="margin-bottom:24px;">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
     <div>
       <h2 style="margin:0;">CTO Signature &amp; Company Seal</h2>
       <p class="muted" style="margin:2px 0 0; font-size:0.88rem;">Official assets inserted into audit documents. Drag and drop new images directly onto the preview frames below.</p>
     </div>
-    <div id="assetUploadAlert" style="display:none; padding:6px 14px; border-radius:6px; font-size:0.85rem; font-weight:600; background:rgba(5,150,105,0.12); color:var(--success); border:1px solid rgba(5,150,105,0.3);"></div>
+    <div id="assetUploadAlert" style="display:none; padding:8px 16px; border-radius:8px; font-size:0.86rem; font-weight:600; background:rgba(16,185,129,0.2); color:#34d399; border:1px solid rgba(16,185,129,0.5); box-shadow:0 0 14px rgba(16,185,129,0.25);"></div>
   </div>
 
-  <div class="dashboard-assets-grid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:18px;">
+  <div class="dashboard-assets-grid">
     <!-- CTO Signature Tile -->
     <div class="dashboard-asset-card" id="sigDropCard">
       <div class="asset-card-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-        <span style="font-size:0.82rem; font-weight:700; color:var(--muted); letter-spacing:0.04em;">CTO SIGNATURE</span>
+        <span style="font-size:0.80rem; font-weight:700; color:#94a3b8; letter-spacing:0.05em;">CTO SIGNATURE</span>
         <span class="status-badge {% if has_signature %}status-success{% else %}status-error{% endif %}" id="sigStatusBadge">
           {% if has_signature %}<span class="status-dot status-dot-success"></span> Active{% else %}<span class="status-dot status-dot-danger"></span> Missing{% endif %}
         </span>
       </div>
-      <div class="dashboard-asset-thumb" id="sigThumbBox" style="height:110px; display:flex; align-items:center; justify-content:center; background:#ffffff; border:1px solid var(--border-color, #cbd5e1); border-radius:8px; padding:10px; overflow:hidden;">
-        <img id="sigDashboardImg" src="/assets/preview/signature" alt="CTO Signature" style="max-height:90px; max-width:100%; object-fit:contain; display:block;">
+      <div class="dashboard-asset-thumb" id="sigThumbBox">
+        <img id="sigDashboardImg" src="/assets/preview/signature" alt="CTO Signature">
       </div>
-      <div style="margin-top:10px; display:flex; justify-content:space-between; align-items:center;">
+      <div style="margin-top:12px; display:flex; justify-content:space-between; align-items:center;">
         {% if can_edit_signature %}
         <button type="button" class="btn-secondary btn-sm" onclick="document.getElementById('sigQuickInput').click()" style="display:inline-flex; align-items:center; gap:6px;">
           <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
@@ -50,15 +50,15 @@
     <!-- Company Seal Tile -->
     <div class="dashboard-asset-card" id="stampDropCard">
       <div class="asset-card-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
-        <span style="font-size:0.82rem; font-weight:700; color:var(--muted); letter-spacing:0.04em;">COMPANY SEAL / STAMP</span>
+        <span style="font-size:0.80rem; font-weight:700; color:#94a3b8; letter-spacing:0.05em;">COMPANY SEAL / STAMP</span>
         <span class="status-badge {% if has_stamp %}status-success{% else %}status-error{% endif %}" id="stampStatusBadge">
           {% if has_stamp %}<span class="status-dot status-dot-success"></span> Active{% else %}<span class="status-dot status-dot-danger"></span> Missing{% endif %}
         </span>
       </div>
-      <div class="dashboard-asset-thumb" id="stampThumbBox" style="height:110px; display:flex; align-items:center; justify-content:center; background:#ffffff; border:1px solid var(--border-color, #cbd5e1); border-radius:8px; padding:10px; overflow:hidden;">
-        <img id="stampDashboardImg" src="/assets/preview/stamp" alt="Company Seal" style="max-height:90px; max-width:100%; object-fit:contain; display:block;">
+      <div class="dashboard-asset-thumb" id="stampThumbBox">
+        <img id="stampDashboardImg" src="/assets/preview/stamp" alt="Company Seal">
       </div>
-      <div style="margin-top:10px; display:flex; justify-content:space-between; align-items:center;">
+      <div style="margin-top:12px; display:flex; justify-content:space-between; align-items:center;">
         {% if can_edit_stamp %}
         <button type="button" class="btn-secondary btn-sm" onclick="document.getElementById('stampQuickInput').click()" style="display:inline-flex; align-items:center; gap:6px;">
           <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
@@ -77,52 +77,75 @@
   </div>
 </div>
 
-<!-- Document Upload Card -->
+<!-- Document Upload Card (High Capacity - 150+ Documents) -->
 <div class="card">
-  <h2>Batch Document Upload</h2>
-  <p class="muted">Upload your monthly statutory compliance documents (PDF, Word .docx, or Excel .xlsx/.xls). You can drag and drop 120 to 140+ files at once or add them in multiple passes.</p>
+  <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+    <h2>Batch Document Upload <span class="badge" style="background:var(--gradient-btn); color:#fff; font-size:0.78rem; margin-left:8px;">Supports 150+ Docs</span></h2>
+    <span class="muted" style="font-size:0.86rem;">Enterprise high-concurrency pipeline</span>
+  </div>
+  <p class="muted" style="margin-top:6px;">Upload your monthly statutory compliance documents (PDF, Word .docx, or Excel .xlsx/.xls). Easily drag &amp; drop 150+ files at once or accumulate them across multiple folders.</p>
 
-  <div id="dropzone" class="dropzone" style="margin-top:14px; text-align:center; padding:36px 20px; border:2px dashed var(--border-color, #cbd5e1); border-radius:12px; background:var(--card-bg, #ffffff); cursor:pointer; transition:all 0.2s ease;">
-    <div style="margin-bottom:12px;">
-      <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;">
+  <div id="dropzone" class="dropzone" style="margin-top:16px;">
+    <div style="margin-bottom:14px;">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; filter:drop-shadow(0 0 10px rgba(56,189,248,0.4));">
         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
         <polyline points="17 8 12 3 7 8"/>
         <line x1="12" y1="3" x2="12" y2="15"/>
       </svg>
     </div>
-    <p style="font-size:1.15rem; margin:6px 0; font-weight:600; color:var(--text);">
-      Drag &amp; drop audit files here, or <span class="browse-link" style="color:var(--primary); text-decoration:underline;">browse files</span>
+    <p style="font-size:1.20rem; margin:6px 0; font-weight:700; color:#ffffff;">
+      Drag &amp; drop up to 150+ audit files here, or <span class="browse-link">browse files</span>
     </p>
-    <p class="muted" style="margin:0; font-size:0.88rem;">Accepts <code>.pdf</code>, <code>.docx</code>, <code>.xlsx</code>, and <code>.xls</code> &bull; Multi-file and folder uploads supported</p>
+    <p class="muted" style="margin:0; font-size:0.88rem;">Accepts <code>.pdf</code>, <code>.docx</code>, <code>.xlsx</code>, and <code>.xls</code> &bull; Instant auto-categorization &amp; duplicate stamp detection</p>
   </div>
 
-  <div class="upload-controls" id="uploadStats" style="display:none; margin-top:16px;">
-    <div class="stats-bar" style="display:flex; align-items:center; gap:10px;">
-      <span class="badge badge-primary" id="pendingFileBadge">0 files</span>
+  <div class="upload-controls" id="uploadStats" style="display:none; margin-top:20px;">
+    <div class="stats-bar" style="display:flex; align-items:center; gap:12px; flex-wrap:wrap; background:rgba(8,17,36,0.85); padding:12px 16px; border-radius:10px; border:1px solid var(--border);">
+      <span class="badge badge-primary" id="pendingFileBadge" style="font-size:0.85rem; padding:5px 12px;">0 files</span>
       <span class="muted" id="pendingFileSize">0 MB</span>
+      <div id="typeBreakdown" style="display:flex; gap:8px; align-items:center; margin-left:8px; flex-wrap:wrap;"></div>
       <button type="button" class="btn-secondary btn-sm" id="clearAllBtn" style="margin-left:auto">Clear All</button>
     </div>
 
-    <div style="margin-top:12px;">
-      <input type="text" id="fileSearchInput" placeholder="Filter files by name..." style="width:100%; max-width:320px;">
+    <div style="margin-top:14px; display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;">
+      <input type="text" id="fileSearchInput" placeholder="Filter selected files by name..." style="max-width:360px;">
+      <span class="muted" id="filterCountNotice" style="font-size:0.84rem;"></span>
     </div>
 
-    <ul class="file-list" id="pendingFileList" style="margin-top:12px; max-height:280px; overflow-y:auto;"></ul>
+    <ul class="file-list" id="pendingFileList" style="margin-top:14px; max-height:380px; overflow-y:auto; padding-right:4px;"></ul>
   </div>
 
   <form method="post" action="/batch/new" enctype="multipart/form-data" id="uploadForm">
     <input type="file" id="files" name="files" accept=".pdf,.docx,.xlsx,.xls" multiple style="display:none">
-    <div style="margin-top:20px; display:flex; align-items:center; gap:14px; flex-wrap:wrap;">
-      <button type="submit" id="submitBtn" class="btn-primary btn-large" disabled style="display:inline-flex; align-items:center; gap:8px;">
+    <div style="margin-top:24px; display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+      <button type="submit" id="submitBtn" class="btn-primary btn-large" disabled style="display:inline-flex; align-items:center; gap:10px;">
         <span>Continue to Placement</span>
         <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
       </button>
-      <span id="uploadSpinner" style="display:none; align-items:center; gap:8px;" class="spinner-text">
+      <span id="uploadSpinner" style="display:none; align-items:center; gap:8px; color:#38bdf8; font-weight:600;" class="spinner-text">
         <svg class="icon spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10" stroke-dasharray="32" stroke-linecap="round"/></svg>
-        Uploading files to server, please wait...
+        Uploading documents to server, please wait...
       </span>
     </div>
   </form>
+</div>
+
+<!-- Upload Progress Modal Overlay for 150 Documents -->
+<div id="uploadOverlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(5,10,24,0.85); backdrop-filter:blur(8px); z-index:99999; align-items:center; justify-content:center; padding:20px;">
+  <div class="card" style="max-width:540px; width:100%; text-align:center; padding:36px 28px; box-shadow:0 24px 60px rgba(0,0,0,0.8), 0 0 30px rgba(37,99,235,0.3); border:1px solid rgba(96,165,250,0.4);">
+    <div style="margin-bottom:18px;">
+      <svg class="icon-xl spin" style="color:#38bdf8; width:48px; height:48px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <circle cx="12" cy="12" r="10" stroke-dasharray="32" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <h3 style="margin:0 0 8px; font-size:1.45rem; color:#ffffff;" id="overlayTitle">Uploading Documents to ARS Server</h3>
+    <p class="muted" style="margin:0 0 20px; font-size:0.94rem;" id="overlaySubtitle">Please wait while your files are being securely uploaded, scanned for original stamps, and indexed for placement.</p>
+    
+    <div style="height:12px; width:100%; background:rgba(255,255,255,0.08); border-radius:10px; overflow:hidden; border:1px solid rgba(255,255,255,0.15);">
+      <div class="progress-bar-wrb" style="height:100%; width:100%; border-radius:10px;"></div>
+    </div>
+    <p class="muted" style="margin:14px 0 0; font-size:0.82rem; color:#94a3b8;">Do not close or refresh this window while the upload completes.</p>
+  </div>
 </div>
 
 <script>
@@ -193,7 +216,7 @@
     function setupAssetDrop(cardId, kind, isAllowed) {
       const card = document.getElementById(cardId);
       if (!card || !isAllowed) return;
-      card.addEventListener("dragover", e => { e.preventDefault(); card.style.borderColor = "var(--primary)"; });
+      card.addEventListener("dragover", e => { e.preventDefault(); card.style.borderColor = "#38bdf8"; });
       card.addEventListener("dragleave", () => { card.style.borderColor = ""; });
       card.addEventListener("drop", e => {
         e.preventDefault();
@@ -207,18 +230,22 @@
     setupAssetDrop("sigDropCard", "signature", {% if can_edit_signature %}true{% else %}false{% endif %});
     setupAssetDrop("stampDropCard", "stamp", {% if can_edit_stamp %}true{% else %}false{% endif %});
 
-    // Document batch upload handling
+    // Document batch upload handling (supports 150+ files smoothly)
     const dropzone = document.getElementById('dropzone');
     const input = document.getElementById('files');
     const listEl = document.getElementById('pendingFileList');
     const statsEl = document.getElementById('uploadStats');
     const badgeEl = document.getElementById('pendingFileBadge');
     const sizeEl = document.getElementById('pendingFileSize');
+    const typeBreakdown = document.getElementById('typeBreakdown');
     const clearAllBtn = document.getElementById('clearAllBtn');
     const searchInput = document.getElementById('fileSearchInput');
+    const filterNotice = document.getElementById('filterCountNotice');
     const submitBtn = document.getElementById('submitBtn');
     const uploadForm = document.getElementById('uploadForm');
     const uploadSpinner = document.getElementById('uploadSpinner');
+    const uploadOverlay = document.getElementById('uploadOverlay');
+    const overlayTitle = document.getElementById('overlayTitle');
 
     const allowedExt = ['.pdf', '.docx', '.xlsx', '.xls'];
     let pending = [];
@@ -244,9 +271,17 @@
       listEl.innerHTML = '';
       const query = (searchInput.value || '').toLowerCase().trim();
       let totalBytes = 0;
+      let docxCount = 0, pdfCount = 0, xlsxCount = 0;
+
+      pending.forEach(entry => {
+        totalBytes += entry.file.size;
+        const ext = entry.file.name.split('.').pop().toLowerCase();
+        if (ext === 'docx') docxCount++;
+        else if (ext === 'pdf') pdfCount++;
+        else if (ext === 'xlsx' || ext === 'xls') xlsxCount++;
+      });
 
       const filtered = pending.filter(entry => {
-        totalBytes += entry.file.size;
         return !query || entry.file.name.toLowerCase().includes(query);
       });
 
@@ -259,7 +294,24 @@
       statsEl.style.display = 'block';
       badgeEl.textContent = `${pending.length} file${pending.length === 1 ? '' : 's'} selected`;
       sizeEl.textContent = `(${formatBytes(totalBytes)})`;
+      
+      // Update breakdown tags
+      typeBreakdown.innerHTML = `
+        ${docxCount > 0 ? `<span class="badge tag-docx">${docxCount} Word</span>` : ''}
+        ${pdfCount > 0 ? `<span class="badge tag-pdf">${pdfCount} PDF</span>` : ''}
+        ${xlsxCount > 0 ? `<span class="badge tag-xlsx">${xlsxCount} Excel</span>` : ''}
+      `;
+
+      if (query) {
+        filterNotice.textContent = `Showing ${filtered.length} of ${pending.length}`;
+      } else {
+        filterNotice.textContent = '';
+      }
+
       submitBtn.disabled = false;
+
+      // Efficient DOM fragment rendering for 150 items
+      const fragment = document.createDocumentFragment();
 
       filtered.forEach(entry => {
         const originalIdx = pending.indexOf(entry);
@@ -269,7 +321,8 @@
         const left = document.createElement('div');
         left.style.display = 'flex';
         left.style.alignItems = 'center';
-        left.style.gap = '8px';
+        left.style.gap = '10px';
+        left.style.overflow = 'hidden';
 
         const ext = entry.file.name.split('.').pop().toLowerCase();
         const tag = document.createElement('span');
@@ -282,11 +335,16 @@
         const nameSpan = document.createElement('span');
         nameSpan.textContent = entry.file.name;
         nameSpan.className = 'file-name-text';
+        nameSpan.style.whiteSpace = 'nowrap';
+        nameSpan.style.overflow = 'hidden';
+        nameSpan.style.textOverflow = 'ellipsis';
+        nameSpan.style.maxWidth = '550px';
 
         const sizeSpan = document.createElement('span');
         sizeSpan.textContent = formatBytes(entry.file.size);
         sizeSpan.className = 'muted';
-        sizeSpan.style.fontSize = '0.85rem';
+        sizeSpan.style.fontSize = '0.80rem';
+        sizeSpan.style.flexShrink = '0';
 
         left.appendChild(tag);
         left.appendChild(nameSpan);
@@ -296,6 +354,7 @@
         removeBtn.type = 'button';
         removeBtn.className = 'btn-danger-outline btn-sm';
         removeBtn.textContent = 'Remove';
+        removeBtn.style.flexShrink = '0';
         removeBtn.addEventListener('click', () => {
           pending.splice(originalIdx, 1);
           sync();
@@ -303,8 +362,10 @@
 
         li.appendChild(left);
         li.appendChild(removeBtn);
-        listEl.appendChild(li);
+        fragment.appendChild(li);
       });
+
+      listEl.appendChild(fragment);
     }
 
     function sync() {
@@ -354,6 +415,10 @@
     uploadForm.addEventListener('submit', () => {
       submitBtn.disabled = true;
       uploadSpinner.style.display = 'inline-flex';
+      if (overlayTitle) {
+        overlayTitle.textContent = `Uploading ${pending.length} Documents to ARS Server...`;
+      }
+      uploadOverlay.style.display = 'flex';
     });
 
     render();

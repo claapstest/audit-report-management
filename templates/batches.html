@@ -50,6 +50,7 @@
 
 <div class="card" style="padding:0; overflow:hidden;">
   {% if batches and batches|length > 0 %}
+  <div class="table-responsive" style="margin-bottom:0;">
   <table class="data-table">
     <thead>
       <tr>
@@ -79,17 +80,17 @@
         </td>
         <td>
           {% if b.new_date %}
-          <span style="font-weight:600; font-size:0.86rem;">{{ b.new_date }}</span>
+          <span style="font-weight:600; font-size:0.86rem; color:#ffffff;">{{ b.new_date }}</span>
           {% else %}<span class="muted">&mdash;</span>{% endif %}
         </td>
-        <td style="font-size:0.86rem; font-weight:500;">{{ b.file_count or 0 }} files</td>
+        <td style="font-size:0.86rem; font-weight:600; color:#ffffff;">{{ b.file_count or 0 }} files</td>
         <td style="font-size:0.82rem;">
-          <span style="color:var(--success);">Date Verified</span> &bull;
-          <span style="color:var(--success);">Seal Stamped</span> &bull;
+          <span style="color:#34d399;">Date Verified</span> &bull;
+          <span style="color:#34d399;">Seal Stamped</span> &bull;
           {% if b.status in ['approved', 'done'] %}
-          <span style="color:var(--brand-blue-accent); font-weight:600;">CTO Signed</span>
+          <span style="color:#38bdf8; font-weight:600;">CTO Signed</span>
           {% else %}
-          <span style="color:var(--warning);">Signature Pending</span>
+          <span style="color:#fbbf24;">Signature Pending</span>
           {% endif %}
         </td>
         <td>
@@ -107,29 +108,30 @@
         </td>
         <td style="text-align:right; white-space:nowrap;">
           {% if is_cto and b.status == 'pending_cto' %}
-          <a class="btn btn-sm btn-primary" href="/batch/{{ b.id }}/review" style="background:var(--success); border-color:var(--success);">
+          <a class="btn btn-sm btn-primary" href="/batch/{{ b.id }}/review" style="padding:4px 10px;">
             Review &amp; Sign
           </a>
           {% endif %}
           
-          <a class="btn btn-sm btn-secondary" href="/batch/{{ b.id }}/monitor" title="Compliance Monitor">
+          <a class="btn btn-sm btn-secondary" href="/batch/{{ b.id }}/monitor" title="Compliance Monitor" style="padding:4px 10px;">
             Monitor
           </a>
 
           {% if b.status in ['approved', 'done'] %}
-          <a class="btn btn-sm btn-secondary" href="/batch/{{ b.id }}/download-zip-pdf" title="Download all PDFs as ZIP">
+          <a class="btn btn-sm btn-secondary" href="/batch/{{ b.id }}/download-zip-pdf" title="Download all PDFs as ZIP" style="padding:4px 10px;">
             PDF ZIP
           </a>
           {% elif b.status == 'draft' %}
-          <a class="btn btn-sm btn-secondary" href="/batch/{{ b.id }}/place">Continue</a>
+          <a class="btn btn-sm btn-secondary" href="/batch/{{ b.id }}/place" style="padding:4px 10px;">Continue</a>
           {% elif b.status == 'processing' %}
-          <a class="btn btn-sm btn-primary" href="/batch/{{ b.id }}/processing">Live Progress</a>
+          <a class="btn btn-sm btn-primary" href="/batch/{{ b.id }}/processing" style="padding:4px 10px;">Live Progress</a>
           {% endif %}
         </td>
       </tr>
       {% endfor %}
     </tbody>
   </table>
+  </div>
   {% else %}
   <div style="text-align:center; padding:48px 20px;">
     <p class="muted" style="margin:0 0 12px 0;">No audit batches found matching the selected filter.</p>
