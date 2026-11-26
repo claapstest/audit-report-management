@@ -99,7 +99,9 @@ def approvals_redirect(request: Request):
     return RedirectResponse(url="/batches?filter=pending", status_code=303)
 
 
-@app.post("/logout")
+@app.api_route("/logout", methods=["GET", "POST"])
 def logout(request: Request):
     request.session.clear()
-    return RedirectResponse(url="/login", status_code=303)
+    response = RedirectResponse(url="/login", status_code=303)
+    response.delete_cookie("session")
+    return response
