@@ -265,17 +265,10 @@
                   </label>
                 </td>
                 <td>
-                  {% if f.has_existing_stamp %}
-                  <span class="badge" style="background:#0284c7; color:#fff; font-size:0.75rem; font-weight:600; padding:3px 8px; border-radius:12px;" title="Original stamp detected in file &mdash; will NOT be stamped over">
-                    Stamp Present (Skipped)
-                  </span>
-                  <input type="hidden" name="apply_stamp_{{ f.id }}" value="0">
-                  {% else %}
                   <label class="doc-opt-toggle" style="cursor:pointer;" title="Click to toggle or remove company stamp for this document">
                     <input type="checkbox" name="apply_stamp_{{ f.id }}" value="1" {% if f.apply_stamp != 0 %}checked{% endif %} class="file-stamp-chk" data-file-id="{{ f.id }}">
                     <span class="badge badge-neutral" style="padding:4px 10px;">Stamp</span>
                   </label>
-                  {% endif %}
                 </td>
                 <td>
                   <select name="category_{{ f.id }}" class="category-select" data-target="task-{{ f.id }}" style="padding:4px 8px; font-size:0.84rem;">

@@ -23,10 +23,20 @@ def is_stamp_image(img: Image.Image) -> bool:
         if not (0.78 <= aspect_ratio <= 1.28):
             return False
 
-        # Convert to RGB to analyze ink hue
+        # Convert to RGB to analyze ink hue and content
         rgb_img = img.convert("RGB")
         stat = ImageStat.Stat(rgb_img)
         r_mean, g_mean, b_mean = stat.mean[:3]
+
+        # Ignore virtually blank / white images
+        if r_mean > 245 and g_mean > 245 and b_mean > 245:
+            return False
+
+        # Ensure image has sufficient non-white ink pixels (<225)
+        pixels = list(rgb_img.getdata())
+        dark_or_ink = [p for p in pixels if p[0] < 225 or p[1] < 225 or p[2] < 225]
+        if len(dark_or_ink) < len(pixels) * 0.015:
+            return False
 
         # Indian company seals use blue/purple ink on light/white paper
         # Header logos (like Claaps red banner) have R > B

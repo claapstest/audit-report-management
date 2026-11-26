@@ -7,6 +7,7 @@ import fitz
 import openpyxl
 
 from . import pdf_engine
+from .date_patterns import compile_pattern
 
 HAS_WIN32 = False
 if sys.platform == "win32":
@@ -329,18 +330,90 @@ def process_excel(
         return False, f"Failed converting Excel to Word/PDF: {msg_conv}", meta
 
     try:
-        # 2. Process and stamp the intermediate PDF
-        ok, msg, meta = pdf_engine.process_pdf(
-            input_path=intermediate_pdf,
-            output_path=output_pdf_path,
-            target_page=target_page,
-            signature=signature,
-            stamp=stamp,
-            new_date=new_date,
-            date_pattern=date_pattern,
-            placement_mode=placement_mode,
-            keywords=keywords,
-        )
+        # 2. Inspect intermediate PDF and stamp signature and company seal strictly below tables
+        doc = fitz.open(intermediate_pdf)
+
+        if new_date:
+            pat = compile_pattern(date_pattern)
+            pdf_engine._replace_dates(doc, new_date, pat)
+
+        has_sig = bool(signature and signature.get("image_path") and Path(signature["image_path"]).exists())
+        has_stamp = bool(stamp and stamp.get("image_path") and Path(stamp["image_path"]).exists())
+
+        if has_sig or has_stamp:
+            target_idx = pdf_engine.resolve_page_index(doc.page_count, target_page)
+            page = doc[target_idx]
+            pw, ph = page.rect.width, page.rect.height
+
+            # Find the bottom boundary of all tables and text on the page
+            table_bottom = 0.0
+            text_dict = page.get_text("dict")
+            for block in text_dict.get("blocks", []):
+                bbox = block.get("bbox", (0, 0, 0, 0))
+                if bbox[3] > table_bottom:
+                    table_bottom = bbox[3]
+
+            for draw in page.get_drawings():
+                rect = draw.get("rect")
+                if rect and rect.y1 > table_bottom:
+                    table_bottom = rect.y1
+
+            if table_bottom <= 0:
+                table_bottom = ph * 0.65
+
+            sig_w = pw * (float(signature.get("w", 18.0)) / 100.0) if has_sig else 0.0
+            sig_h = sig_w * pdf_engine._image_aspect_ratio(signature["image_path"]) if has_sig else 0.0
+
+            stamp_w = pw * (float(stamp.get("w", 14.0)) / 100.0) if has_stamp else 0.0
+            stamp_h = stamp_w * pdf_engine._image_aspect_ratio(stamp["image_path"]) if has_stamp else 0.0
+
+            max_h = max(sig_h, stamp_h)
+            avail_h = ph - table_bottom
+            if avail_h < max_h + 10.0 and max_h > 0 and avail_h > 20.0:
+                scale = max(0.4, (avail_h - 10.0) / max_h)
+                sig_w *= scale
+                sig_h *= scale
+                stamp_w *= scale
+                stamp_h *= scale
+                max_h *= scale
+
+            # Position strictly below the table bottom
+            top_y = table_bottom + 15.0
+            if top_y + max_h > ph - 10.0:
+                top_y = max(table_bottom + 5.0, ph - max_h - 10.0)
+
+            # Place signature and company stamp side by side below the tables
+            gap = 25.0
+            if has_sig and has_stamp:
+                total_w = sig_w + gap + stamp_w
+                start_x = max(30.0, pw - total_w - 55.0)
+
+                sig_y0 = top_y + (max_h - sig_h) / 2.0
+                sig_rect = fitz.Rect(start_x, sig_y0, start_x + sig_w, sig_y0 + sig_h)
+                page.insert_image(sig_rect, filename=signature["image_path"])
+
+                stamp_x0 = start_x + sig_w + gap
+                stamp_y0 = top_y + (max_h - stamp_h) / 2.0
+                stamp_rect = fitz.Rect(stamp_x0, stamp_y0, stamp_x0 + stamp_w, stamp_y0 + stamp_h)
+                page.insert_image(stamp_rect, filename=stamp["image_path"])
+            elif has_sig:
+                start_x = max(30.0, pw - sig_w - 55.0)
+                sig_rect = fitz.Rect(start_x, top_y, start_x + sig_w, top_y + sig_h)
+                page.insert_image(sig_rect, filename=signature["image_path"])
+            elif has_stamp:
+                start_x = max(30.0, pw - stamp_w - 55.0)
+                stamp_rect = fitz.Rect(start_x, top_y, start_x + stamp_w, top_y + stamp_h)
+                page.insert_image(stamp_rect, filename=stamp["image_path"])
+
+            meta["detected_page"] = target_idx + 1
+            meta["detected_text"] = "Below Tables"
+            meta["is_fallback"] = 0
+            msg = f"Signed & stamped below tables (Page {target_idx + 1})"
+        else:
+            msg = "Processed (no signature or stamp requested)"
+
+        doc.save(str(output_pdf_path), incremental=False, deflate=True)
+        doc.close()
 
         # 3. If output_xlsx_path is requested, also copy the original xlsx
         if output_xlsx_path and Path(input_path).exists():
@@ -349,7 +422,7 @@ def process_excel(
             except Exception:
                 pass
 
-        return ok, msg, meta
+        return True, msg, meta
     finally:
         # Clean up temporary intermediate PDF file
         try:

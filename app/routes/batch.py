@@ -163,8 +163,8 @@ def create_batch(request: Request, user=Depends(require_user), files: list[Uploa
             has_existing, stamp_detail = detect_existing_stamp(dest)
             conn.execute(
                 """INSERT INTO batch_files (batch_id, original_name, input_path, category_id, has_existing_stamp, apply_signature, apply_stamp)
-                   VALUES (?, ?, ?, ?, ?, 1, ?)""",
-                (batch_id, name, str(dest), matched["id"] if matched else None, 1 if has_existing else 0, 0 if has_existing else 1),
+                   VALUES (?, ?, ?, ?, ?, 1, 1)""",
+                (batch_id, name, str(dest), matched["id"] if matched else None, 1 if has_existing else 0),
             )
             saved_any = True
 
@@ -433,8 +433,8 @@ def _worker_process_batch(
             file_apply_stamp = bool(f["apply_stamp"]) if ("apply_stamp" in f.keys() and f["apply_stamp"] is not None) else True
             has_existing = bool(f["has_existing_stamp"]) if "has_existing_stamp" in f.keys() else False
 
-            # ABSOLUTE RULE: If document already has an existing stamp or was excluded, NEVER add a stamp!
-            if has_existing or not file_apply_stamp or not include_stamp:
+            # Apply stamp unless disabled by user for file or batch
+            if not file_apply_stamp or not include_stamp:
                 use_stamp = False
                 stamp_path = None
             else:
@@ -522,7 +522,7 @@ def _worker_process_batch(
             has_stamp_flag = 1 if (ok and (stamp_path or has_existing)) else (1 if has_existing else 0)
             has_date_flag = 1 if (ok and effective_date) else 0
 
-            if ok and has_existing:
+            if ok and has_existing and not stamp_path:
                 message = f"{message} (Preserved original stamp)" if message else "Preserved original stamp"
 
             with get_conn() as conn:
@@ -630,10 +630,7 @@ async def process_batch(
             else:
                 val = 1 if eff_include_sig else (f["apply_signature"] if "apply_signature" in f.keys() and f["apply_signature"] is not None else 1)
 
-            if bool(f["has_existing_stamp"]):
-                # STRICT RULE: Existing stamps are NEVER stamped over
-                sval = 0
-            elif stamp_key in form:
+            if stamp_key in form:
                 sval = 1 if form.get(stamp_key) in ("1", "true", "on") else 0
             else:
                 sval = 1 if eff_include_stamp else (f["apply_stamp"] if "apply_stamp" in f.keys() and f["apply_stamp"] is not None else 1)
